@@ -1,12 +1,12 @@
-package handlers
+package controllers
 
 import (
 	"errors"
 	"outclass-api/app/commons"
 	"outclass-api/app/configs"
+	"outclass-api/app/controllers/core"
+	_directory "outclass-api/app/controllers/directory"
 	"outclass-api/app/dtos"
-	"outclass-api/app/handlers/core"
-	_directory "outclass-api/app/handlers/directory"
 	"outclass-api/app/models"
 	"outclass-api/app/repositories"
 	"outclass-api/app/utils"

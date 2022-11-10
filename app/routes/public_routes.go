@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"outclass-api/app/handlers"
+	"outclass-api/app/controllers"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -9,6 +9,6 @@ import (
 func PublicRoutes(a *fiber.App) {
 	route := a.Group("/api/v1")
 
-	route.Post("/user/sign/in", handlers.UserSignIn)
-	route.Post("/user/sign/up", handlers.UserSignUp)
+	route.Post("/user/sign/in", controllers.UserSignIn)
+	route.Post("/user/sign/up", controllers.UserSignUp)
 }

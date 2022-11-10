@@ -1,13 +1,13 @@
-package handlers
+package controllers
 
 import (
 	"context"
 	"os"
 	"outclass-api/app/commons"
 	"outclass-api/app/configs"
+	_auth "outclass-api/app/controllers/auth"
+	"outclass-api/app/controllers/core"
 	"outclass-api/app/dtos"
-	_auth "outclass-api/app/handlers/auth"
-	"outclass-api/app/handlers/core"
 	"outclass-api/app/models"
 	"outclass-api/app/utils"
 	"strconv"

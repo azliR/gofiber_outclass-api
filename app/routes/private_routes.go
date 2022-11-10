@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"outclass-api/app/handlers"
+	"outclass-api/app/controllers"
 	"outclass-api/app/middleware"
 
 	"github.com/gofiber/fiber/v2"
@@ -10,21 +10,21 @@ import (
 func PrivateRoutes(a *fiber.App) {
 	route := a.Group("/api/v1")
 
-	route.Get("/user/profile", middleware.JWTProtected(), handlers.UserProfile)
-	route.Post("/user/sign/out", middleware.JWTProtected(), handlers.UserSignOut)
-	route.Post("/token/renew", middleware.JWTProtected(), handlers.RenewTokens)
+	route.Get("/user/profile", middleware.JWTProtected(), controllers.UserProfile)
+	route.Post("/user/sign/out", middleware.JWTProtected(), controllers.UserSignOut)
+	route.Post("/token/renew", middleware.JWTProtected(), controllers.RenewTokens)
 
-	route.Get("/files/get/:fileId", middleware.JWTProtected(), handlers.GetFile)
-	route.Post("/files/upload", middleware.JWTProtected(), handlers.UploadFile)
-	route.Delete("/files/:fileId", middleware.JWTProtected(), handlers.DeleteFile)
+	route.Get("/files/get/:fileId", middleware.JWTProtected(), controllers.GetFile)
+	route.Post("/files/upload", middleware.JWTProtected(), controllers.UploadFile)
+	route.Delete("/files/:fileId", middleware.JWTProtected(), controllers.DeleteFile)
 
-	route.Post("/directories/post", middleware.JWTProtected(), handlers.CreatePost)
-	route.Put("/directories/post", middleware.JWTProtected(), handlers.UpdatePostById)
+	route.Post("/directories/post", middleware.JWTProtected(), controllers.CreatePost)
+	route.Put("/directories/post", middleware.JWTProtected(), controllers.UpdatePostById)
 
-	route.Post("/directories/folder", middleware.JWTProtected(), handlers.CreateFolder)
-	route.Put("/directories/folder", middleware.JWTProtected(), handlers.UpdateFolderById)
+	route.Post("/directories/folder", middleware.JWTProtected(), controllers.CreateFolder)
+	route.Put("/directories/folder", middleware.JWTProtected(), controllers.UpdateFolderById)
 
-	route.Get("/directories", middleware.JWTProtected(), handlers.GetDirectoriesByParentId)
-	route.Get("/directories/:directoryId", middleware.JWTProtected(), handlers.GetDirectory)
-	route.Delete("/directories/:directoryId", middleware.JWTProtected(), handlers.DeleteDirectory)
+	route.Get("/directories", middleware.JWTProtected(), controllers.GetDirectoriesByParentId)
+	route.Get("/directories/:directoryId", middleware.JWTProtected(), controllers.GetDirectory)
+	route.Delete("/directories/:directoryId", middleware.JWTProtected(), controllers.DeleteDirectory)
 }
