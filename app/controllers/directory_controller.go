@@ -4,6 +4,7 @@ import (
 	"errors"
 	"outclass-api/app/commons"
 	"outclass-api/app/configs"
+	"outclass-api/app/constants"
 	"outclass-api/app/controllers/core"
 	_directory "outclass-api/app/controllers/directory"
 	"outclass-api/app/dtos"
@@ -65,7 +66,7 @@ func CreatePost(c *fiber.Ctx) error {
 				Message: err.Error(),
 			})
 		} else {
-			if foundedDirectory.Type != "folder" {
+			if foundedDirectory.Type != constants.FolderDirectoryName {
 				return c.Status(fiber.StatusBadRequest).JSON(commons.Response{
 					Success: false,
 					Message: "The parent is not a folder",
@@ -73,7 +74,19 @@ func CreatePost(c *fiber.Ctx) error {
 			}
 		}
 	}
-	// TODO: implement checking classroomId
+	_, err = db.GetClassroomById(postDto.ClassroomId)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return c.Status(fiber.StatusBadRequest).JSON(commons.Response{
+				Success: false,
+				Message: "The classroomId is not found",
+			})
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+			Success: false,
+			Message: err.Error(),
+		})
+	}
 
 	now := time.Now()
 	parentId, _ := primitive.ObjectIDFromHex(postDto.ParentId)
@@ -85,7 +98,7 @@ func CreatePost(c *fiber.Ctx) error {
 		OwnerId:      ownerId,
 		ClassroomId:  classroomId,
 		Name:         postDto.Name,
-		Type:         "post",
+		Type:         constants.PostDirectoryName,
 		Description:  postDto.Description,
 		Files:        dtos.ToModelFiles(postDto.Files),
 		LastModified: primitive.NewDateTimeFromTime(now),
@@ -160,7 +173,7 @@ func CreateFolder(c *fiber.Ctx) error {
 				Message: err.Error(),
 			})
 		} else {
-			if foundedDirectory.Type != "folder" {
+			if foundedDirectory.Type != constants.FolderDirectoryName {
 				return c.Status(fiber.StatusBadRequest).JSON(commons.Response{
 					Success: false,
 					Message: "The parent is not a folder",
@@ -168,7 +181,20 @@ func CreateFolder(c *fiber.Ctx) error {
 			}
 		}
 	}
-	// TODO: implement checking classroomId
+
+	_, err = db.GetClassroomById(folderDto.ClassroomId)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return c.Status(fiber.StatusBadRequest).JSON(commons.Response{
+				Success: false,
+				Message: "The classroomId is not found",
+			})
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+			Success: false,
+			Message: err.Error(),
+		})
+	}
 
 	now := time.Now()
 	parentId, _ := primitive.ObjectIDFromHex(folderDto.ParentId)
@@ -184,7 +210,7 @@ func CreateFolder(c *fiber.Ctx) error {
 		OwnerId:      ownerId,
 		ClassroomId:  classroomId,
 		Name:         folderDto.Name,
-		Type:         "folder",
+		Type:         constants.FolderDirectoryName,
 		Color:        &color,
 		Description:  folderDto.Description,
 		LastModified: primitive.NewDateTimeFromTime(now),
@@ -346,7 +372,7 @@ func UpdatePostById(c *fiber.Ctx) error {
 			Message: err.Error(),
 		})
 	} else {
-		if foundedDirectory.Type != "post" {
+		if foundedDirectory.Type != constants.PostDirectoryName {
 			return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
 				Success: false,
 				Message: "This directory is not a post",
@@ -429,7 +455,7 @@ func UpdateFolderById(c *fiber.Ctx) error {
 			Message: err.Error(),
 		})
 	} else {
-		if foundedDirectory.Type != "folder" {
+		if foundedDirectory.Type != constants.FolderDirectoryName {
 			return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
 				Success: false,
 				Message: "This directory is not a folder",

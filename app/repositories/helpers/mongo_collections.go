@@ -12,7 +12,7 @@ func UserCollection(client *mongo.Client) *mongo.Collection {
 }
 
 func ClassroomCollection(client *mongo.Client) *mongo.Collection {
-	return getCollection(client, "classroom")
+	return getCollection(client, "classrooms")
 }
 
 func DirectoryCollection(client *mongo.Client) *mongo.Collection {
