@@ -43,7 +43,14 @@ func CreatePost(c *fiber.Ctx) error {
 		})
 	}
 
-	db := configs.MongoDb
+	db, err := configs.GetMongoConnection()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+			Success: false,
+			Message: err.Error(),
+		})
+	}
+
 	if postDto.ParentId != "" {
 		foundedDirectory, err := db.GetDirectoryById(postDto.ParentId)
 		if err != nil {
@@ -131,7 +138,14 @@ func CreateFolder(c *fiber.Ctx) error {
 		})
 	}
 
-	db := configs.MongoDb
+	db, err := configs.GetMongoConnection()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+			Success: false,
+			Message: err.Error(),
+		})
+	}
+
 	if folderDto.ParentId != "" {
 		foundedDirectory, err := db.GetDirectoryById(folderDto.ParentId)
 		if err != nil {
@@ -197,7 +211,7 @@ func CreateFolder(c *fiber.Ctx) error {
 	})
 }
 
-func GetDirectory(c *fiber.Ctx) error {
+func GetDirectoryById(c *fiber.Ctx) error {
 	_, err := core.VerifyAndSyncToken(c)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
@@ -208,7 +222,14 @@ func GetDirectory(c *fiber.Ctx) error {
 
 	directoryId := c.Params("directoryId")
 
-	db := configs.MongoDb
+	db, err := configs.GetMongoConnection()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+			Success: false,
+			Message: err.Error(),
+		})
+	}
+
 	directory, err := db.GetDirectoryById(directoryId)
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
@@ -253,7 +274,14 @@ func GetDirectoriesByParentId(c *fiber.Ctx) error {
 		})
 	}
 
-	db := configs.MongoDb
+	db, err := configs.GetMongoConnection()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+			Success: false,
+			Message: err.Error(),
+		})
+	}
+
 	directories, err := db.GetDirectoriesByParentId(
 		directoryParam.ParentId,
 		directoryParam.Page,
@@ -281,6 +309,7 @@ func UpdatePostById(c *fiber.Ctx) error {
 		})
 	}
 
+	postId := c.Params("postId")
 	postDto := &dtos.UpdatePostDto{}
 	if err := c.BodyParser(postDto); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
@@ -296,8 +325,15 @@ func UpdatePostById(c *fiber.Ctx) error {
 		})
 	}
 
-	db := configs.MongoDb
-	foundedDirectory, err := db.GetDirectoryById(postDto.Id)
+	db, err := configs.GetMongoConnection()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+			Success: false,
+			Message: err.Error(),
+		})
+	}
+
+	foundedDirectory, err := db.GetDirectoryById(postId)
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			return c.Status(fiber.StatusNotFound).JSON(commons.Response{
@@ -323,13 +359,17 @@ func UpdatePostById(c *fiber.Ctx) error {
 
 	foundedDirectory.ParentId = parentId
 
-	if postDto.Name != "" {
-		foundedDirectory.Name = postDto.Name
+	if postDto.Name == foundedDirectory.Name &&
+		postDto.Description == foundedDirectory.Description &&
+		postDto.ParentId == foundedDirectory.ParentId.Hex() {
+		return c.SendStatus(fiber.StatusNotModified)
+	} else {
+		if postDto.Name != "" {
+			foundedDirectory.Name = postDto.Name
+		}
+		foundedDirectory.Description = postDto.Description
+		foundedDirectory.LastModified = primitive.NewDateTimeFromTime(now)
 	}
-	if postDto.Description != "" {
-		foundedDirectory.Description = &postDto.Description
-	}
-	foundedDirectory.LastModified = primitive.NewDateTimeFromTime(now)
 
 	if err = db.UpdateDirectory(*foundedDirectory); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
@@ -352,6 +392,7 @@ func UpdateFolderById(c *fiber.Ctx) error {
 		})
 	}
 
+	folderId := c.Params("folderId")
 	folderDto := &dtos.UpdateFolderDto{}
 	if err := c.BodyParser(folderDto); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
@@ -367,8 +408,15 @@ func UpdateFolderById(c *fiber.Ctx) error {
 		})
 	}
 
-	db := configs.MongoDb
-	foundedDirectory, err := db.GetDirectoryById(folderDto.Id)
+	db, err := configs.GetMongoConnection()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+			Success: false,
+			Message: err.Error(),
+		})
+	}
+
+	foundedDirectory, err := db.GetDirectoryById(folderId)
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			return c.Status(fiber.StatusNotFound).JSON(commons.Response{
@@ -393,17 +441,21 @@ func UpdateFolderById(c *fiber.Ctx) error {
 	parentId, _ := primitive.ObjectIDFromHex(folderDto.ParentId)
 
 	foundedDirectory.ParentId = parentId
-
-	if folderDto.Name != "" {
-		foundedDirectory.Name = folderDto.Name
+	if folderDto.Name == foundedDirectory.Name &&
+		folderDto.Color == foundedDirectory.Color &&
+		folderDto.Description == foundedDirectory.Description &&
+		folderDto.ParentId == foundedDirectory.ParentId.Hex() {
+		return c.SendStatus(fiber.StatusNotModified)
+	} else {
+		if folderDto.Name != "" {
+			foundedDirectory.Name = folderDto.Name
+		}
+		if folderDto.Color != nil {
+			foundedDirectory.Color = folderDto.Color
+		}
+		foundedDirectory.Description = folderDto.Description
+		foundedDirectory.LastModified = primitive.NewDateTimeFromTime(now)
 	}
-	if folderDto.Color != "" {
-		foundedDirectory.Color = &folderDto.Color
-	}
-	if folderDto.Description != "" {
-		foundedDirectory.Description = &folderDto.Description
-	}
-	foundedDirectory.LastModified = primitive.NewDateTimeFromTime(now)
 
 	if err = db.UpdateDirectory(*foundedDirectory); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
@@ -435,7 +487,14 @@ func DeleteDirectory(c *fiber.Ctx) error {
 		})
 	}
 
-	db := configs.MongoDb
+	db, err := configs.GetMongoConnection()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+			Success: false,
+			Message: err.Error(),
+		})
+	}
+
 	if err = db.DeleteDirectory(directoryId); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
 			Success: false,
@@ -462,18 +521,17 @@ func UploadFile(c *fiber.Ctx) error {
 		})
 	}
 
-	fileName, err := repositories.UploadFile(c, file, claims.UserId)
+	fileModel, err := repositories.UploadFile(c, file, claims.UserId)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
 			Success: false,
 			Message: err.Error(),
 		})
 	}
+
 	return c.Status(fiber.StatusCreated).JSON(commons.Response{
 		Success: false,
-		Data: _directory.FileUploadResponse{
-			FileName: fileName,
-		},
+		Data:    _directory.ToFileUploadResponse(*fileModel),
 	})
 }
 

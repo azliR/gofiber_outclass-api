@@ -80,13 +80,19 @@ func RenewTokens(c *fiber.Ctx) error {
 		hoursCount, _ := strconv.Atoi(os.Getenv("JWT_REFRESH_KEY_EXPIRE_HOURS_COUNT"))
 		expiration := time.Hour * time.Duration(hoursCount)
 
-		connRedis := configs.RedisDb
-		errRedis := connRedis.Set(context.Background(), userId, tokens.Refresh, expiration).Err()
-		fmt.Print(expiration)
-		if errRedis != nil {
+		redis, err := configs.GetRedisConnection()
+		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
 				Success: false,
-				Message: errRedis.Error(),
+				Message: err.Error(),
+			})
+		}
+
+		err = redis.Set(context.Background(), userId, tokens.Refresh, expiration).Err()
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+				Success: false,
+				Message: err.Error(),
 			})
 		}
 

@@ -3,7 +3,6 @@ package configs
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 	"outclass-api/app/repositories"
 	"time"
@@ -15,36 +14,47 @@ import (
 
 type Repositories struct {
 	*repositories.UserRepositories
+	*repositories.ClassroomRepositories
 	*repositories.DirectoryRepositories
 }
 
-var MongoDb = MongoConnection()
+var MongoDb, _ = MongoConnection()
 
-func MongoConnection() *Repositories {
+func GetMongoConnection() (*Repositories, error) {
+	db := MongoDb
+	if db == nil {
+		mongoDb, err := MongoConnection()
+		if err != nil {
+			return nil, err
+		}
+		db = mongoDb
+	}
+	return db, nil
+}
+
+func MongoConnection() (*Repositories, error) {
 	godotenv.Load()
 	client, err := mongo.NewClient(options.Client().ApplyURI(os.Getenv("MONGO_URI")))
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	err = client.Connect(ctx)
-
-	if err != nil {
-		log.Fatal(err)
+	if err := client.Connect(ctx); err != nil {
+		return nil, err
 	}
 
-	err = client.Ping(ctx, nil)
-	if err != nil {
-		return nil
+	if err := client.Ping(ctx, nil); err != nil {
+		return nil, err
 	}
 
 	fmt.Println("Connected to MongoDB")
 
 	return &Repositories{
 		UserRepositories:      &repositories.UserRepositories{Client: client},
+		ClassroomRepositories: &repositories.ClassroomRepositories{Client: client},
 		DirectoryRepositories: &repositories.DirectoryRepositories{Client: client},
-	}
+	}, nil
 }

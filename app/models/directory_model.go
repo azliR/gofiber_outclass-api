@@ -11,9 +11,9 @@ type Directory struct {
 	ClassroomId  primitive.ObjectID `bson:"_classroom_id" json:"classroom_id"`
 	Name         string             `bson:"name" json:"name" validate:"required"`
 	Type         string             `bson:"type" json:"type" validate:"required,oneof=folder post"`
-	Color        *string            `bson:"color" json:"color" validate:"omitempty,oneof=maraschino cayenne maroon plum eggplant grape orchird lavender carnation strawberry bubblegum magenta salmon tangerine cantaloupe banana lemon honeydew lime spring clover fern moss flora sea foam spindrift teal sky turquoise"`
+	Color        *string            `bson:"color" json:"color,omitempty" validate:"omitempty,oneof=maraschino cayenne maroon plum eggplant grape orchird lavender carnation strawberry bubblegum magenta salmon tangerine cantaloupe banana lemon honeydew lime spring clover fern moss flora sea foam spindrift teal sky turquoise"`
 	Description  *string            `bson:"description" json:"description"`
-	Files        []File             `bson:"files" json:"files" validate:"required_unless=Type folder,dive,unique=Link"`
+	Files        []File             `bson:"files" json:"files,omitempty" validate:"required_unless=Type folder,dive,unique=Link"`
 	SharedWith   []UserWithAccess   `bson:"shared_with" json:"shared_with" validate:"dive"`
 	LastModified primitive.DateTime `bson:"last_modified" json:"last_modified" validate:"required"`
 	DateCreated  primitive.DateTime `bson:"date_created" json:"date_created" validate:"required"`

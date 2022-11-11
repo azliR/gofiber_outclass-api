@@ -3,6 +3,7 @@ module outclass-api
 go 1.19
 
 require (
+	github.com/dchest/uniuri v1.2.0
 	github.com/go-playground/validator/v10 v10.11.1
 	github.com/go-redis/redis/v9 v9.0.0-rc.1
 	github.com/gofiber/fiber/v2 v2.39.0

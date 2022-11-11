@@ -3,8 +3,8 @@ package dtos
 import "outclass-api/app/models"
 
 type CreatePostDto struct {
-	ParentId    string    `json:"parent_id"`
-	ClassroomId string    `json:"classroom_id"`
+	ParentId    string    `json:"parent_id" validate:"omitempty,len=24"`
+	ClassroomId string    `json:"classroom_id" validate:"omitempty,len=24"`
 	Name        string    `json:"name" validate:"required"`
 	Description *string   `json:"description"`
 	Files       []FileDto `json:"files" validate:"required,dive,unique=Link"`
@@ -18,26 +18,24 @@ type FileDto struct {
 
 type CreateFolderDto struct {
 	ParentId    string  `json:"parent_id" validate:"omitempty,len=24"`
-	ClassroomId string  `json:"classroom_id" validate:"required,omitempty,len=24"`
+	ClassroomId string  `json:"classroom_id" validate:"omitempty,len=24"`
 	Name        string  `json:"name" validate:"required"`
 	Color       string  `json:"color" validate:"omitempty,oneof=maraschino cayenne maroon plum eggplant grape orchird lavender carnation strawberry bubblegum magenta salmon tangerine cantaloupe banana lemon honeydew lime spring clover fern moss flora sea foam spindrift teal sky turquoise"`
 	Description *string `json:"description"`
 }
 
 type UpdatePostDto struct {
-	Id          string    `json:"id" validate:"required,len=24"`
 	ParentId    string    `json:"parent_id" validate:"omitempty,len=24"`
 	Name        string    `json:"name"`
-	Description string    `json:"description"`
+	Description *string   `json:"description"`
 	Files       []FileDto `json:"files" validate:"dive,unique=Link"`
 }
 
 type UpdateFolderDto struct {
-	Id          string `json:"id" validate:"required,len=24"`
-	ParentId    string `json:"parent_id" validate:"omitempty,len=24"`
-	Name        string `json:"name"`
-	Color       string `json:"color" validate:"omitempty,oneof=null maraschino cayenne maroon plum eggplant grape orchird lavender carnation strawberry bubblegum magenta salmon tangerine cantaloupe banana lemon honeydew lime spring clover fern moss flora sea foam spindrift teal sky turquoise"`
-	Description string `json:"description"`
+	ParentId    string  `json:"parent_id" validate:"omitempty,len=24"`
+	Name        string  `json:"name"`
+	Color       *string `json:"color" validate:"omitempty,oneof=null maraschino cayenne maroon plum eggplant grape orchird lavender carnation strawberry bubblegum magenta salmon tangerine cantaloupe banana lemon honeydew lime spring clover fern moss flora sea foam spindrift teal sky turquoise"`
+	Description *string `json:"description"`
 }
 
 type UserWithAccess struct {

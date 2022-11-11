@@ -22,6 +22,8 @@ type DirectoryRepositories struct {
 	*mongo.Client
 }
 
+const StoredFilePath = "./uploads/"
+
 func (r *DirectoryRepositories) CreateDirectory(directory models.Directory) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -98,18 +100,27 @@ func (r *DirectoryRepositories) DeleteDirectory(directoryId string) error {
 	return nil
 }
 
-func UploadFile(c *fiber.Ctx, file *multipart.FileHeader, userId string) (string, error) {
+func UploadFile(c *fiber.Ctx, file *multipart.FileHeader, userId string) (*models.File, error) {
 	fileExt := filepath.Ext(file.Filename)
 	fileName := userId + strings.ReplaceAll(uuid.NewString(), "-", "") + fileExt
-	filePath := "./uploads/" + fileName
+	filePath := StoredFilePath + fileName
 	if err := c.SaveFile(file, filePath); err != nil {
-		return "", err
+		return nil, err
 	}
-	return fileName, nil
+	serverHost := os.Getenv("SERVER_HOST")
+	serverPort := os.Getenv("SERVER_PORT")
+	server := "http://" + serverHost + ":" + serverPort
+	link := server + "/api/v1/files/" + fileName
+
+	return &models.File{
+		Link: link,
+		Type: strings.Replace(fileExt, ".", "", 1),
+		Size: file.Size,
+	}, nil
 }
 
 func DeleteFile(c *fiber.Ctx, fileId string) error {
-	filePath := "./uploads/" + fileId
+	filePath := StoredFilePath + fileId
 
 	if err := os.Remove(filePath); err != nil {
 		return err

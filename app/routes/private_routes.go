@@ -14,17 +14,22 @@ func PrivateRoutes(a *fiber.App) {
 	route.Post("/user/sign/out", middleware.JWTProtected(), controllers.UserSignOut)
 	route.Post("/token/renew", middleware.JWTProtected(), controllers.RenewTokens)
 
-	route.Get("/files/get/:fileId", middleware.JWTProtected(), controllers.GetFile)
-	route.Post("/files/upload", middleware.JWTProtected(), controllers.UploadFile)
+	route.Post("/classrooms", middleware.JWTProtected(), controllers.CreateClassroom)
+	route.Put("/classrooms/:classroomId", middleware.JWTProtected(), controllers.UpdateClassroomById)
+	route.Get("/classrooms/:classroomId", middleware.JWTProtected(), controllers.GetClassroomById)
+	route.Delete("/classrooms/:classroomId", middleware.JWTProtected(), controllers.DeleteClassroom)
+
+	route.Post("/files", middleware.JWTProtected(), controllers.UploadFile)
+	route.Get("/files/:fileId", middleware.JWTProtected(), controllers.GetFile)
 	route.Delete("/files/:fileId", middleware.JWTProtected(), controllers.DeleteFile)
 
-	route.Post("/directories/post", middleware.JWTProtected(), controllers.CreatePost)
-	route.Put("/directories/post", middleware.JWTProtected(), controllers.UpdatePostById)
+	route.Post("/directories/posts", middleware.JWTProtected(), controllers.CreatePost)
+	route.Put("/directories/posts/:postId", middleware.JWTProtected(), controllers.UpdatePostById)
 
-	route.Post("/directories/folder", middleware.JWTProtected(), controllers.CreateFolder)
-	route.Put("/directories/folder", middleware.JWTProtected(), controllers.UpdateFolderById)
+	route.Post("/directories/folders", middleware.JWTProtected(), controllers.CreateFolder)
+	route.Put("/directories/folders/:folderId", middleware.JWTProtected(), controllers.UpdateFolderById)
 
 	route.Get("/directories", middleware.JWTProtected(), controllers.GetDirectoriesByParentId)
-	route.Get("/directories/:directoryId", middleware.JWTProtected(), controllers.GetDirectory)
+	route.Get("/directories/:directoryId", middleware.JWTProtected(), controllers.GetDirectoryById)
 	route.Delete("/directories/:directoryId", middleware.JWTProtected(), controllers.DeleteDirectory)
 }

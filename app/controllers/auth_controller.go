@@ -52,7 +52,13 @@ func UserSignUp(c *fiber.Ctx) error {
 		})
 	}
 
-	db := configs.MongoDb
+	db, err := configs.GetMongoConnection()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+			Success: false,
+			Message: err.Error(),
+		})
+	}
 
 	foundedUser, err := db.GetUserByEmail(user.Email)
 	if err != nil {
@@ -101,7 +107,13 @@ func UserSignIn(c *fiber.Ctx) error {
 		})
 	}
 
-	db := configs.MongoDb
+	db, err := configs.GetMongoConnection()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+			Success: false,
+			Message: err.Error(),
+		})
+	}
 
 	foundedUser, err := db.GetUserByEmail(signInDto.Email)
 	if err != nil {
@@ -130,13 +142,19 @@ func UserSignIn(c *fiber.Ctx) error {
 	hoursCount, _ := strconv.Atoi(os.Getenv("JWT_REFRESH_KEY_EXPIRE_HOURS_COUNT"))
 	expiration := time.Hour * time.Duration(hoursCount)
 
-	connRedis := configs.RedisDb
-	errSaveToRedis := connRedis.Set(context.Background(), userId, tokens.Refresh, expiration).Err()
-
-	if errSaveToRedis != nil {
+	redis, err := configs.GetRedisConnection()
+	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
 			Success: false,
-			Message: errSaveToRedis.Error(),
+			Message: err.Error(),
+		})
+	}
+
+	err = redis.Set(context.Background(), userId, tokens.Refresh, expiration).Err()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+			Success: false,
+			Message: err.Error(),
 		})
 	}
 
@@ -157,7 +175,13 @@ func UserProfile(c *fiber.Ctx) error {
 
 	userId := claims.UserId
 
-	db := configs.MongoDb
+	db, err := configs.GetMongoConnection()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+			Success: false,
+			Message: err.Error(),
+		})
+	}
 
 	user, err := db.GetUserById(userId)
 	if err != nil {
@@ -187,13 +211,19 @@ func UserSignOut(c *fiber.Ctx) error {
 
 	userID := claims.UserId
 
-	connRedis := configs.RedisDb
-
-	errDelFromRedis := connRedis.Del(context.Background(), userID).Err()
-	if errDelFromRedis != nil {
+	redis, err := configs.GetRedisConnection()
+	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
 			Success: false,
-			Message: errDelFromRedis.Error(),
+			Message: err.Error(),
+		})
+	}
+
+	err = redis.Del(context.Background(), userID).Err()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+			Success: false,
+			Message: err.Error(),
 		})
 	}
 

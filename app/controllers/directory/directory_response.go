@@ -1,5 +1,7 @@
 package _directory
 
+import "outclass-api/app/models"
+
 // type DirectoryResponse struct {
 // 	Id           string                   `json:"id" validate:"required"`
 // 	ParentId     string                   `json:"parent_id"`
@@ -26,8 +28,17 @@ type UserWithAccessResponse struct {
 }
 
 type FileUploadResponse struct {
-	FileName string `json:"file_name"`
-	Link     string `json:"link"`
+	Link string `json:"link" validate:"required,url"`
+	Type string `json:"type" validate:"required"`
+	Size int64  `json:"size" validate:"required,number"`
+}
+
+func ToFileUploadResponse(file models.File) FileUploadResponse {
+	return FileUploadResponse{
+		Link: file.Link,
+		Type: file.Type,
+		Size: file.Size,
+	}
 }
 
 // func ToDirectoryResponse(directory models.Directory) DirectoryResponse {
