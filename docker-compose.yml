@@ -1,16 +1,18 @@
-version: "3.9"
+version: '3.9'
 
 services:
   redis:
-    image: "redis:latest"
+    image: 'redis:latest'
     ports:
-      - "6379:6379"
+      - '6379:6379'
     volumes:
       - /home/azlir/docker/redis/data:/data
   mongo:
-    image: "mongo:latest"
+    hostname: mongo
+    image: 'mongo:latest'
     ports:
-      - "27017:27017"
+      - '27017:27017'
     volumes:
       - /home/azlir/docker/mongo/data/db:/data/db
       - /home/azlir/docker/mongo/data/configdb:/data/configdb
+    command: '--bind_ip_all --replSet rs0'

@@ -152,7 +152,7 @@ func UpdateClassroomById(c *fiber.Ctx) error {
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			return c.Status(fiber.StatusNotFound).JSON(commons.Response{
 				Success: false,
-				Message: err.Error(),
+				Message: "the classroom is not found",
 			})
 		}
 		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{

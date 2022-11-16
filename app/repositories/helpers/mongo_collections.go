@@ -15,6 +15,10 @@ func ClassroomCollection(client *mongo.Client) *mongo.Collection {
 	return getCollection(client, "classrooms")
 }
 
+func ClassroomMemberCollection(client *mongo.Client) *mongo.Collection {
+	return getCollection(client, "classroom_members")
+}
+
 func DirectoryCollection(client *mongo.Client) *mongo.Collection {
 	return getCollection(client, "directories")
 }

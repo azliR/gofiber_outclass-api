@@ -58,7 +58,7 @@ func CreatePost(c *fiber.Ctx) error {
 			if errors.Is(err, mongo.ErrNoDocuments) {
 				return c.Status(fiber.StatusNotFound).JSON(commons.Response{
 					Success: false,
-					Message: "The parent document is not found",
+					Message: "the parent document is not found",
 				})
 			}
 			return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
@@ -69,23 +69,26 @@ func CreatePost(c *fiber.Ctx) error {
 			if foundedDirectory.Type != constants.FolderDirectoryName {
 				return c.Status(fiber.StatusBadRequest).JSON(commons.Response{
 					Success: false,
-					Message: "The parent is not a folder",
+					Message: "the parent is not a folder",
 				})
 			}
 		}
 	}
-	_, err = db.GetClassroomById(postDto.ClassroomId)
-	if err != nil {
-		if errors.Is(err, mongo.ErrNoDocuments) {
-			return c.Status(fiber.StatusBadRequest).JSON(commons.Response{
+
+	if postDto.ClassroomId != "" {
+		_, err = db.GetClassroomById(postDto.ClassroomId)
+		if err != nil {
+			if errors.Is(err, mongo.ErrNoDocuments) {
+				return c.Status(fiber.StatusBadRequest).JSON(commons.Response{
+					Success: false,
+					Message: "the classroomId is not found",
+				})
+			}
+			return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
 				Success: false,
-				Message: "The classroomId is not found",
+				Message: err.Error(),
 			})
 		}
-		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
-			Success: false,
-			Message: err.Error(),
-		})
 	}
 
 	now := time.Now()
@@ -165,7 +168,7 @@ func CreateFolder(c *fiber.Ctx) error {
 			if errors.Is(err, mongo.ErrNoDocuments) {
 				return c.Status(fiber.StatusNotFound).JSON(commons.Response{
 					Success: false,
-					Message: "The parent document is not found",
+					Message: "the parent document is not found",
 				})
 			}
 			return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
@@ -176,24 +179,26 @@ func CreateFolder(c *fiber.Ctx) error {
 			if foundedDirectory.Type != constants.FolderDirectoryName {
 				return c.Status(fiber.StatusBadRequest).JSON(commons.Response{
 					Success: false,
-					Message: "The parent is not a folder",
+					Message: "the parent is not a folder",
 				})
 			}
 		}
 	}
 
-	_, err = db.GetClassroomById(folderDto.ClassroomId)
-	if err != nil {
-		if errors.Is(err, mongo.ErrNoDocuments) {
-			return c.Status(fiber.StatusBadRequest).JSON(commons.Response{
+	if folderDto.ClassroomId != "" {
+		_, err = db.GetClassroomById(folderDto.ClassroomId)
+		if err != nil {
+			if errors.Is(err, mongo.ErrNoDocuments) {
+				return c.Status(fiber.StatusBadRequest).JSON(commons.Response{
+					Success: false,
+					Message: "the classroomId is not found",
+				})
+			}
+			return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
 				Success: false,
-				Message: "The classroomId is not found",
+				Message: err.Error(),
 			})
 		}
-		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
-			Success: false,
-			Message: err.Error(),
-		})
 	}
 
 	now := time.Now()
@@ -375,7 +380,7 @@ func UpdatePostById(c *fiber.Ctx) error {
 		if foundedDirectory.Type != constants.PostDirectoryName {
 			return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
 				Success: false,
-				Message: "This directory is not a post",
+				Message: "this directory is not a post",
 			})
 		}
 	}
@@ -458,7 +463,7 @@ func UpdateFolderById(c *fiber.Ctx) error {
 		if foundedDirectory.Type != constants.FolderDirectoryName {
 			return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
 				Success: false,
-				Message: "This directory is not a folder",
+				Message: "this directory is not a folder",
 			})
 		}
 	}

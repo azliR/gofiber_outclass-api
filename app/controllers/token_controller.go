@@ -38,7 +38,7 @@ func RenewTokens(c *fiber.Ctx) error {
 	if now < expiresAccessToken {
 		return c.Status(fiber.StatusUnauthorized).JSON(commons.Response{
 			Success: false,
-			Message: "Your token still active",
+			Message: "your token still active",
 		})
 	}
 

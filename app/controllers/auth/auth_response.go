@@ -26,9 +26,8 @@ func ToTokenResponse(tokens *utils.Tokens) TokenResponse {
 
 func ToUserResponse(user *models.User) UserResponse {
 	return UserResponse{
-		Id:        user.Id.Hex(),
-		StudentId: user.StudentId,
-		Name:      user.Name,
-		Email:     user.Email,
+		Id:    user.Id.Hex(),
+		Name:  user.Name,
+		Email: user.Email,
 	}
 }

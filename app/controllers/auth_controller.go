@@ -38,11 +38,10 @@ func UserSignUp(c *fiber.Ctx) error {
 	}
 
 	user := &models.User{
-		Id:        primitive.NewObjectID(),
-		StudentId: signUpDto.StudentId,
-		Name:      signUpDto.Name,
-		Email:     signUpDto.Email,
-		Password:  utils.GeneratePassword(signUpDto.Password),
+		Id:       primitive.NewObjectID(),
+		Name:     signUpDto.Name,
+		Email:    signUpDto.Email,
+		Password: utils.GeneratePassword(signUpDto.Password),
 	}
 
 	if err := validator.Struct(user); err != nil {
@@ -72,7 +71,7 @@ func UserSignUp(c *fiber.Ctx) error {
 		if foundedUser != nil {
 			return c.Status(fiber.StatusConflict).JSON(commons.Response{
 				Success: false,
-				Message: "Duplicate email",
+				Message: "duplicate email",
 			})
 		}
 	}
@@ -119,7 +118,7 @@ func UserSignIn(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(commons.Response{
 			Success: false,
-			Message: "User with the given email is not found",
+			Message: "user with the given email is not found",
 		})
 	}
 
@@ -127,7 +126,7 @@ func UserSignIn(c *fiber.Ctx) error {
 	if !compareUserPassword {
 		return c.Status(fiber.StatusBadRequest).JSON(commons.Response{
 			Success: false,
-			Message: "Email and password do not match",
+			Message: "email and password do not match",
 		})
 	}
 

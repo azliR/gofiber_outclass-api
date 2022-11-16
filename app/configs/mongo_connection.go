@@ -13,8 +13,10 @@ import (
 )
 
 type Repositories struct {
+	mongo.Client
 	*repositories.UserRepositories
 	*repositories.ClassroomRepositories
+	*repositories.ClassroomMemberRepositories
 	*repositories.DirectoryRepositories
 }
 
@@ -53,8 +55,10 @@ func MongoConnection() (*Repositories, error) {
 	fmt.Println("Connected to MongoDB")
 
 	return &Repositories{
-		UserRepositories:      &repositories.UserRepositories{Client: client},
-		ClassroomRepositories: &repositories.ClassroomRepositories{Client: client},
-		DirectoryRepositories: &repositories.DirectoryRepositories{Client: client},
+		Client:                      *client,
+		UserRepositories:            &repositories.UserRepositories{Client: client},
+		ClassroomRepositories:       &repositories.ClassroomRepositories{Client: client},
+		ClassroomMemberRepositories: &repositories.ClassroomMemberRepositories{Client: client},
+		DirectoryRepositories:       &repositories.DirectoryRepositories{Client: client},
 	}, nil
 }

@@ -9,6 +9,8 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/writeconcern"
 )
 
 type ClassroomRepositories struct {
@@ -55,7 +57,7 @@ func (r *ClassroomRepositories) GetClassroomById(classroomId string) (*models.Cl
 // 	findOption.SetLimit(int64(pageLimit))
 // 	findOption.SetSkip(int64((page - 1) * pageLimit))
 
-// 	cursor, err := helpers.ClassroomCollection(r.Client).Find(ctx, bson.M{"_parent_id": objId}, findOption)
+// 	cursor, err := helpers.ClassroomCollection(r.Client).Find(ctx, bson.M{"_stud_id": objId}, findOption)
 // 	if err != nil {
 // 		return nil, err
 // 	}
@@ -67,12 +69,34 @@ func (r *ClassroomRepositories) GetClassroomById(classroomId string) (*models.Cl
 // }
 
 func (r *ClassroomRepositories) UpdateClassroom(classroom models.Classroom) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
+	wc := writeconcern.New(writeconcern.WMajority())
+	txnOptions := options.Transaction().SetWriteConcern(wc)
 
-	_, err := helpers.ClassroomCollection(r.Client).UpdateByID(ctx, classroom.Id, bson.D{
-		{Key: "$set", Value: classroom},
-	})
+	session, err := r.Client.StartSession()
+	if err != nil {
+		return err
+	}
+	defer session.EndSession(context.TODO())
+
+	_, err = session.WithTransaction(context.TODO(), func(sessCtx mongo.SessionContext) (interface{}, error) {
+		_, err = helpers.ClassroomMemberCollection(r.Client).UpdateMany(
+			sessCtx,
+			bson.M{"_classroom_id": classroom.Id}, bson.M{
+				"$set": bson.M{"classroom_name": classroom.Name},
+			})
+		if err != nil {
+			return nil, err
+		}
+
+		_, err = helpers.ClassroomCollection(r.Client).UpdateByID(sessCtx, classroom.Id, bson.D{
+			{Key: "$set", Value: classroom},
+		})
+		if err != nil {
+			return nil, err
+		}
+		return nil, nil
+	}, txnOptions)
+
 	if err != nil {
 		return err
 	}
@@ -80,11 +104,41 @@ func (r *ClassroomRepositories) UpdateClassroom(classroom models.Classroom) erro
 }
 
 func (r *ClassroomRepositories) DeleteClassroom(classroomId string) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
+	wc := writeconcern.New(writeconcern.WMajority())
+	txnOptions := options.Transaction().SetWriteConcern(wc)
 
-	objId, _ := primitive.ObjectIDFromHex(classroomId)
-	_, err := helpers.ClassroomCollection(r.Client).DeleteOne(ctx, bson.M{"_id": objId})
+	session, err := r.Client.StartSession()
+	if err != nil {
+		return err
+	}
+	defer session.EndSession(context.TODO())
+
+	objId, err := primitive.ObjectIDFromHex(classroomId)
+	if err != nil {
+		return err
+	}
+
+	_, err = session.WithTransaction(context.TODO(), func(sessCtx mongo.SessionContext) (interface{}, error) {
+		_, err := helpers.ClassroomMemberCollection(r.Client).DeleteMany(
+			sessCtx, bson.M{"_classroom_id": objId},
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		_, err = helpers.DirectoryCollection(r.Client).DeleteMany(
+			sessCtx, bson.M{"_classroom_id": objId},
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		_, err = helpers.ClassroomCollection(r.Client).DeleteOne(sessCtx, bson.M{"_id": objId})
+		if err != nil {
+			return nil, err
+		}
+		return nil, nil
+	}, txnOptions)
 	if err != nil {
 		return err
 	}
