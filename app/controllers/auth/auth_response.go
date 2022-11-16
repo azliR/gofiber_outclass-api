@@ -11,10 +11,9 @@ type TokenResponse struct {
 }
 
 type UserResponse struct {
-	Id        string `json:"id"`
-	StudentId string `json:"studentId"`
-	Name      string `json:"name"`
-	Email     string `json:"email"`
+	Id    string `json:"id"`
+	Name  string `json:"name"`
+	Email string `json:"email"`
 }
 
 func ToTokenResponse(tokens *utils.Tokens) TokenResponse {

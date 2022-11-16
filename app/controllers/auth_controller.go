@@ -196,6 +196,72 @@ func UserProfile(c *fiber.Ctx) error {
 	})
 }
 
+func UpdateUser(c *fiber.Ctx) error {
+	claims, err := core.VerifyAndSyncToken(c)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+			Success: false,
+			Message: err.Error(),
+		})
+	}
+
+	userId := claims.UserId
+
+	updateUserDto := &dtos.UpdateUser{}
+
+	if err := c.BodyParser(updateUserDto); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(commons.Response{
+			Success: false,
+			Message: err.Error(),
+		})
+	}
+
+	if err := validator.Struct(updateUserDto); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(commons.Response{
+			Success: false,
+			Message: utils.ValidatorErrors(err),
+		})
+	}
+
+	db, err := configs.GetMongoConnection()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+			Success: false,
+			Message: err.Error(),
+		})
+	}
+
+	foundedUser, err := db.GetUserById(userId)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+			Success: false,
+			Message: err.Error(),
+		})
+	}
+
+	updateName := updateUserDto.Name != "" && updateUserDto.Name != foundedUser.Name
+
+	if updateUserDto.Name != "" {
+		foundedUser.Name = updateUserDto.Name
+	}
+
+	if updateUserDto.Email != "" {
+		foundedUser.Email = updateUserDto.Email
+	}
+
+	if err := db.UpdateUserById(userId, updateName, foundedUser); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+			Success: false,
+			Message: err.Error(),
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(commons.Response{
+		Success: true,
+		Data:    _auth.ToUserResponse(foundedUser),
+	})
+}
+
 func UserSignOut(c *fiber.Ctx) error {
 	bearToken := c.Get("Authorization")
 	token := utils.ExtractToken(bearToken)

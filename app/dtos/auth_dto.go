@@ -10,3 +10,8 @@ type SignIn struct {
 	Email    string `json:"email" validate:"required,email"`
 	Password string `json:"password" validate:"required"`
 }
+
+type UpdateUser struct {
+	Name  string `json:"name"`
+	Email string `json:"email" validate:"omitempty,email"`
+}
