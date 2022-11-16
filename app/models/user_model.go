@@ -9,8 +9,8 @@ type User struct {
 	Password string             `bson:"password" validate:"required"`
 }
 
-/*
-const jsonScheme = {
+/* MONGO JSON SCHEMA VALIDATION
+{
   $jsonSchema: {
     title: 'User Object Validation',
     bsonType: 'object',
