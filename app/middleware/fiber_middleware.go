@@ -9,7 +9,7 @@ import (
 func FiberMiddleware(app *fiber.App) {
 	app.Use(
 		cors.New(cors.Config{
-			AllowOrigins: "https://outclass-dev.netlify.app, http://localhost:5000",
+			AllowOrigins: "https://outclass-dev.netlify.app, https://localhost:5173",
 		}),
 		logger.New(),
 	)
