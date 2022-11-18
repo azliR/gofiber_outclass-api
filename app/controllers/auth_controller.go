@@ -116,10 +116,17 @@ func UserSignIn(c *fiber.Ctx) error {
 
 	foundedUser, err := db.GetUserByEmail(signInDto.Email)
 	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(commons.Response{
-			Success: false,
-			Message: "user with the given email is not found",
-		})
+		if err != mongo.ErrNoDocuments {
+			return c.Status(fiber.StatusBadRequest).JSON(commons.Response{
+				Success: false,
+				Message: "email and password do not match",
+			})
+		} else {
+			return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+				Success: false,
+				Message: err.Error(),
+			})
+		}
 	}
 
 	compareUserPassword := utils.ComparePasswords(foundedUser.Password, signInDto.Password)
@@ -166,7 +173,7 @@ func UserSignIn(c *fiber.Ctx) error {
 func UserProfile(c *fiber.Ctx) error {
 	claims, err := core.VerifyAndSyncToken(c)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+		return c.Status(fiber.StatusUnauthorized).JSON(commons.Response{
 			Success: false,
 			Message: err.Error(),
 		})
@@ -199,7 +206,7 @@ func UserProfile(c *fiber.Ctx) error {
 func UpdateUser(c *fiber.Ctx) error {
 	claims, err := core.VerifyAndSyncToken(c)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+		return c.Status(fiber.StatusUnauthorized).JSON(commons.Response{
 			Success: false,
 			Message: err.Error(),
 		})
@@ -268,7 +275,7 @@ func UserSignOut(c *fiber.Ctx) error {
 
 	claims, err := utils.ExtractTokenMetadata(token)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+		return c.Status(fiber.StatusUnauthorized).JSON(commons.Response{
 			Success: false,
 			Message: err.Error(),
 		})

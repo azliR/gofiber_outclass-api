@@ -50,7 +50,7 @@ func (r *DirectoryRepositories) GetDirectoryById(directoryId string) (*models.Di
 	return directory, nil
 }
 
-func (r *DirectoryRepositories) GetDirectoriesByParentId(parentId string, page uint, pageLimit uint) (*[]models.Directory, error) {
+func (r *DirectoryRepositories) GetDirectoriesByParentId(directoryType string, parentId string, page uint, pageLimit uint) (*[]models.Directory, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -64,7 +64,11 @@ func (r *DirectoryRepositories) GetDirectoriesByParentId(parentId string, page u
 	findOption.SetLimit(int64(pageLimit))
 	findOption.SetSkip(int64((page - 1) * pageLimit))
 
-	cursor, err := helpers.DirectoryCollection(r.Client).Find(ctx, bson.M{"_parent_id": objId}, findOption)
+	cursor, err := helpers.DirectoryCollection(r.Client).Find(
+		ctx,
+		bson.M{"_parent_id": objId, "type": directoryType},
+		findOption,
+	)
 	if err != nil {
 		return nil, err
 	}

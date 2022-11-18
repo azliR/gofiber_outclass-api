@@ -20,9 +20,8 @@ import (
 
 func CreatePost(c *fiber.Ctx) error {
 	claims, err := core.VerifyAndSyncToken(c)
-
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+		return c.Status(fiber.StatusUnauthorized).JSON(commons.Response{
 			Success: false,
 			Message: err.Error(),
 		})
@@ -130,9 +129,8 @@ func CreatePost(c *fiber.Ctx) error {
 
 func CreateFolder(c *fiber.Ctx) error {
 	claims, err := core.VerifyAndSyncToken(c)
-
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+		return c.Status(fiber.StatusUnauthorized).JSON(commons.Response{
 			Success: false,
 			Message: err.Error(),
 		})
@@ -245,7 +243,7 @@ func CreateFolder(c *fiber.Ctx) error {
 func GetDirectoryById(c *fiber.Ctx) error {
 	_, err := core.VerifyAndSyncToken(c)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+		return c.Status(fiber.StatusUnauthorized).JSON(commons.Response{
 			Success: false,
 			Message: err.Error(),
 		})
@@ -284,7 +282,7 @@ func GetDirectoryById(c *fiber.Ctx) error {
 func GetDirectoriesByParentId(c *fiber.Ctx) error {
 	_, err := core.VerifyAndSyncToken(c)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+		return c.Status(fiber.StatusUnauthorized).JSON(commons.Response{
 			Success: false,
 			Message: err.Error(),
 		})
@@ -314,6 +312,7 @@ func GetDirectoriesByParentId(c *fiber.Ctx) error {
 	}
 
 	directories, err := db.GetDirectoriesByParentId(
+		directoryParam.Type,
 		directoryParam.ParentId,
 		directoryParam.Page,
 		directoryParam.PageLimit,
@@ -334,7 +333,7 @@ func GetDirectoriesByParentId(c *fiber.Ctx) error {
 func UpdatePostById(c *fiber.Ctx) error {
 	_, err := core.VerifyAndSyncToken(c)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+		return c.Status(fiber.StatusUnauthorized).JSON(commons.Response{
 			Success: false,
 			Message: err.Error(),
 		})
@@ -417,7 +416,7 @@ func UpdatePostById(c *fiber.Ctx) error {
 func UpdateFolderById(c *fiber.Ctx) error {
 	_, err := core.VerifyAndSyncToken(c)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+		return c.Status(fiber.StatusUnauthorized).JSON(commons.Response{
 			Success: false,
 			Message: err.Error(),
 		})
@@ -503,7 +502,7 @@ func UpdateFolderById(c *fiber.Ctx) error {
 func DeleteDirectory(c *fiber.Ctx) error {
 	_, err := core.VerifyAndSyncToken(c)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+		return c.Status(fiber.StatusUnauthorized).JSON(commons.Response{
 			Success: false,
 			Message: err.Error(),
 		})
@@ -538,7 +537,7 @@ func DeleteDirectory(c *fiber.Ctx) error {
 func UploadFile(c *fiber.Ctx) error {
 	claims, err := core.VerifyAndSyncToken(c)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+		return c.Status(fiber.StatusUnauthorized).JSON(commons.Response{
 			Success: false,
 			Message: err.Error(),
 		})
@@ -569,7 +568,7 @@ func UploadFile(c *fiber.Ctx) error {
 func GetFile(c *fiber.Ctx) error {
 	_, err := core.VerifyAndSyncToken(c)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+		return c.Status(fiber.StatusUnauthorized).JSON(commons.Response{
 			Success: false,
 			Message: err.Error(),
 		})
@@ -583,7 +582,7 @@ func GetFile(c *fiber.Ctx) error {
 func DeleteFile(c *fiber.Ctx) error {
 	_, err := core.VerifyAndSyncToken(c)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+		return c.Status(fiber.StatusUnauthorized).JSON(commons.Response{
 			Success: false,
 			Message: err.Error(),
 		})

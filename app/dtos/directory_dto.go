@@ -44,7 +44,8 @@ type UserWithAccess struct {
 }
 
 type GetDirectoriesDto struct {
-	ParentId  string `query:"parent_id" validate:"required"`
+	Type      string `query:"type" validate:"required,oneof=folder post"`
+	ParentId  string `query:"parent_id"`
 	Page      uint   `query:"page" validate:"required"`
 	PageLimit uint   `query:"page_limit" validate:"required"`
 }

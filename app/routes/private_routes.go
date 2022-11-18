@@ -13,7 +13,7 @@ func PrivateRoutes(a *fiber.App) {
 	route.Put("/user", middleware.JWTProtected(), controllers.UpdateUser)
 	route.Get("/user/profile", middleware.JWTProtected(), controllers.UserProfile)
 	route.Post("/user/sign/out", middleware.JWTProtected(), controllers.UserSignOut)
-	route.Post("/token/renew", middleware.JWTProtected(), controllers.RenewTokens)
+	route.Post("/user/refresh", middleware.JWTProtected(), controllers.RenewTokens)
 
 	route.Post("/classrooms", middleware.JWTProtected(), controllers.CreateClassroom)
 	route.Put("/classrooms/:classroomId", middleware.JWTProtected(), controllers.UpdateClassroomById)

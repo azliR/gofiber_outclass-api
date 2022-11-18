@@ -22,7 +22,7 @@ func RenewTokens(c *fiber.Ctx) error {
 
 	claims, err := utils.ExtractTokenMetadata(token)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+		return c.Status(fiber.StatusUnauthorized).JSON(commons.Response{
 			Success: false,
 			Message: err.Error(),
 		})
@@ -36,7 +36,7 @@ func RenewTokens(c *fiber.Ctx) error {
 	fmt.Println(time.Unix(expiresAccessToken, 0))
 
 	if now < expiresAccessToken {
-		return c.Status(fiber.StatusUnauthorized).JSON(commons.Response{
+		return c.Status(fiber.StatusForbidden).JSON(commons.Response{
 			Success: false,
 			Message: "your token still active",
 		})

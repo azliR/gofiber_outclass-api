@@ -16,9 +16,8 @@ import (
 
 func CreateClassroomMember(c *fiber.Ctx) error {
 	_, err := core.VerifyAndSyncToken(c)
-
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+		return c.Status(fiber.StatusUnauthorized).JSON(commons.Response{
 			Success: false,
 			Message: err.Error(),
 		})
@@ -131,7 +130,7 @@ func CreateClassroomMember(c *fiber.Ctx) error {
 func GetClassroomMembersByClassroomId(c *fiber.Ctx) error {
 	_, err := core.VerifyAndSyncToken(c)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+		return c.Status(fiber.StatusUnauthorized).JSON(commons.Response{
 			Success: false,
 			Message: err.Error(),
 		})
