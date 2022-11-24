@@ -58,7 +58,6 @@ func (r *DirectoryRepositories) GetDirectoriesByParentId(directoryType string, p
 
 	findOption := options.Find()
 	findOption.SetSort(bson.D{
-		{Key: "type", Value: 1},
 		{Key: "last_modified", Value: -1},
 	})
 	findOption.SetLimit(int64(pageLimit))
