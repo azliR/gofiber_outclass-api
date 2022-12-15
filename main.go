@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"outclass-api/app/configs"
@@ -22,10 +21,8 @@ func main() {
 	routes.PrivateRoutes(app)
 	routes.PublicRoutes(app)
 
-	url := fmt.Sprintf(
-		"%s:%s",
-		os.Getenv("SERVER_HOST"),
-		os.Getenv("SERVER_PORT"),
-	)
+	host := os.Getenv("SERVER_HOST")
+	port := os.Getenv("SERVER_PORT")
+	url := host + ":" + port
 	log.Fatal(app.Listen(url))
 }

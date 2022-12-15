@@ -5,18 +5,16 @@ import (
 	"outclass-api/app/constants"
 )
 
-type CreateClassroomMemberDto struct {
-	UserId    string `json:"user_id" validate:"required,len=24"`
-	StudentId string `json:"student_id" validate:"required"`
-	Role      string `json:"role" validate:"required,oneof=owner admin member"`
-}
+// type CreateClassroomMemberDto struct {
+// 	StudentId string `json:"student_id" validate:"required"`
+// }
 
 type GetClassroomMembersDto struct {
 	Page      uint `query:"page" validate:"required"`
 	PageLimit uint `query:"page_limit" validate:"required"`
 }
 
-func ToModelRole(role string) (uint16, error) {
+func ToModelRole(role string) (uint8, error) {
 	switch role {
 	case constants.OwnerClassroomRoleName:
 		return 1, nil
@@ -29,7 +27,7 @@ func ToModelRole(role string) (uint16, error) {
 	}
 }
 
-func FromModelRole(role uint16) (string, error) {
+func FromModelRole(role uint8) (string, error) {
 	switch role {
 	case 1:
 		return constants.OwnerClassroomRoleName, nil

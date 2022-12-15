@@ -27,19 +27,19 @@ func (r *ClassroomMemberRepositories) CreateClassroomMember(classroomMember mode
 	return nil
 }
 
-func (r *ClassroomMemberRepositories) GetClassroomMemberByStudentIdAndClassroomId(studentId string, classroomId string) (*models.ClassroomMember, error) {
+func (r *ClassroomMemberRepositories) GetClassroomMemberByUserIdAndClassroomId(userId string, classroomId string) (*models.ClassroomMember, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	classroomMember := &models.ClassroomMember{}
 
-	studentIdObj, _ := primitive.ObjectIDFromHex(studentId)
+	userIdObj, _ := primitive.ObjectIDFromHex(userId)
 	classroomIdObj, _ := primitive.ObjectIDFromHex(classroomId)
 
 	err := helpers.ClassroomMemberCollection(r.Client).FindOne(
 		ctx,
 		bson.M{
-			"_student_id":   studentIdObj,
+			"_user_id":      userIdObj,
 			"_classroom_id": classroomIdObj,
 		},
 	).Decode(classroomMember)
@@ -65,6 +65,30 @@ func (r *ClassroomMemberRepositories) GetClassroomMembersByClassroomId(classroom
 	findOption.SetSkip(int64((page - 1) * pageLimit))
 
 	cursor, err := helpers.ClassroomMemberCollection(r.Client).Find(ctx, bson.M{"_classroom_id": objId}, findOption)
+	if err != nil {
+		return nil, err
+	}
+
+	classroomMembers := &[]models.ClassroomMember{}
+	cursor.All(ctx, classroomMembers)
+
+	return classroomMembers, nil
+}
+
+func (r *ClassroomMemberRepositories) GetClassroomMembersByUserId(studentId string, page uint, pageLimit uint) (*[]models.ClassroomMember, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	objId, _ := primitive.ObjectIDFromHex(studentId)
+
+	findOption := options.Find()
+	findOption.SetSort(bson.D{
+		{Key: "classroom_name", Value: 1},
+	})
+	findOption.SetLimit(int64(pageLimit))
+	findOption.SetSkip(int64((page - 1) * pageLimit))
+
+	cursor, err := helpers.ClassroomMemberCollection(r.Client).Find(ctx, bson.M{"_user_id": objId}, findOption)
 	if err != nil {
 		return nil, err
 	}

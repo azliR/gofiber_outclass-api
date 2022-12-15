@@ -5,8 +5,8 @@ import (
 	"os"
 	"outclass-api/app/commons"
 	"outclass-api/app/configs"
-	_auth "outclass-api/app/controllers/auth"
 	"outclass-api/app/controllers/core"
+	"outclass-api/app/controllers/responses"
 	"outclass-api/app/dtos"
 	"outclass-api/app/models"
 	"outclass-api/app/utils"
@@ -83,9 +83,36 @@ func UserSignUp(c *fiber.Ctx) error {
 		})
 	}
 
+	userId := user.Id.Hex()
+	tokens, err := utils.GenerateNewTokens(userId)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+			Success: false,
+			Message: err.Error(),
+		})
+	}
+	hoursCount, _ := strconv.Atoi(os.Getenv("JWT_REFRESH_KEY_EXPIRE_HOURS_COUNT"))
+	expiration := time.Hour * time.Duration(hoursCount)
+
+	redis, err := configs.GetRedisConnection()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+			Success: false,
+			Message: err.Error(),
+		})
+	}
+
+	err = redis.Set(context.Background(), userId, tokens.Refresh, expiration).Err()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+			Success: false,
+			Message: err.Error(),
+		})
+	}
+
 	return c.Status(fiber.StatusCreated).JSON(commons.Response{
 		Success: true,
-		Data:    _auth.ToUserResponse(user),
+		Data:    responses.ToCreateUserResponse(*user, *tokens),
 	})
 }
 
@@ -166,7 +193,7 @@ func UserSignIn(c *fiber.Ctx) error {
 
 	return c.JSON(commons.Response{
 		Success: true,
-		Data:    _auth.ToTokenResponse(tokens),
+		Data:    responses.ToTokenResponse(*tokens),
 	})
 }
 
@@ -199,7 +226,7 @@ func UserProfile(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(commons.Response{
 		Success: true,
-		Data:    _auth.ToUserResponse(user),
+		Data:    responses.ToUserResponse(*user),
 	})
 }
 
@@ -265,7 +292,7 @@ func UpdateUser(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(commons.Response{
 		Success: true,
-		Data:    _auth.ToUserResponse(foundedUser),
+		Data:    responses.ToUserResponse(*foundedUser),
 	})
 }
 

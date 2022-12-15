@@ -1,0 +1,314 @@
+use('outclass')
+
+db.directories.remove({})
+
+// Insert folders and posts with class share type
+const ownerId = ObjectId('6374a62b9aabdf757a9c6ce7')
+const classroomId = ObjectId('6374de6d18022546ac175b70')
+
+const pawId = ObjectId()
+
+db.directories.insertMany([
+	{
+		_id: ObjectId(),
+		_parent_id: ObjectId('000000000000000000000000'),
+		_classroom_id: classroomId,
+		_owner_id: ownerId,
+		name: 'Inteligensia Buatan',
+		color: 'teal',
+		type: 'folder',
+		description: null,
+		files: null,
+		shared_with: null,
+		last_modified: new Date(),
+		date_created: new Date(),
+	},
+	{
+		_id: pawId,
+		_parent_id: ObjectId('000000000000000000000000'),
+		_classroom_id: classroomId,
+		_owner_id: ownerId,
+		name: 'PAW',
+		color: 'teal',
+		type: 'folder',
+		description: null,
+		files: null,
+		shared_with: null,
+		last_modified: new Date(),
+		date_created: new Date(),
+	},
+	{
+		_id: ObjectId(),
+		_parent_id: ObjectId('000000000000000000000000'),
+		_classroom_id: classroomId,
+		_owner_id: ownerId,
+		name: 'PAM',
+		color: 'teal',
+		type: 'folder',
+		description: null,
+		files: null,
+		shared_with: null,
+		last_modified: new Date(),
+		date_created: new Date(),
+	},
+	{
+		_id: ObjectId(),
+		_parent_id: ObjectId('000000000000000000000000'),
+		_classroom_id: classroomId,
+		_owner_id: ownerId,
+		name: 'Praktikum PAM',
+		color: 'teal',
+		type: 'folder',
+		description: null,
+		files: null,
+		shared_with: null,
+		last_modified: new Date(),
+		date_created: new Date(),
+	},
+	{
+		_id: ObjectId(),
+		_parent_id: ObjectId('000000000000000000000000'),
+		_classroom_id: classroomId,
+		_owner_id: ownerId,
+		name: 'Praktikum PAW',
+		color: 'teal',
+		type: 'folder',
+		description: null,
+		files: null,
+		shared_with: null,
+		last_modified: new Date(),
+		date_created: new Date(),
+	},
+	{
+		_id: ObjectId(),
+		_parent_id: ObjectId('000000000000000000000000'),
+		_classroom_id: classroomId,
+		_owner_id: ownerId,
+		name: 'Praktikum Jarkom',
+		color: 'teal',
+		type: 'folder',
+		description: null,
+		files: null,
+		shared_with: null,
+		last_modified: new Date(),
+		date_created: new Date(),
+	},
+	{
+		_id: ObjectId(),
+		_parent_id: ObjectId('000000000000000000000000'),
+		_classroom_id: classroomId,
+		_owner_id: ownerId,
+		name: 'Jarkom',
+		color: 'teal',
+		type: 'folder',
+		description: null,
+		files: null,
+		shared_with: null,
+		last_modified: new Date(),
+		date_created: new Date(),
+	},
+	{
+		_id: ObjectId(),
+		_parent_id: ObjectId('000000000000000000000000'),
+		_classroom_id: classroomId,
+		_owner_id: ownerId,
+		name: 'IMK',
+		color: 'teal',
+		type: 'folder',
+		description: null,
+		files: null,
+		shared_with: null,
+		last_modified: new Date(),
+		date_created: new Date(),
+	},
+	{
+		_id: ObjectId(),
+		_parent_id: ObjectId('000000000000000000000000'),
+		_classroom_id: classroomId,
+		_owner_id: ownerId,
+		name: 'MPPL',
+		color: 'teal',
+		type: 'folder',
+		description: null,
+		files: null,
+		shared_with: null,
+		last_modified: new Date(),
+		date_created: new Date(),
+	},
+	{
+		_id: ObjectId(),
+		_parent_id: ObjectId('000000000000000000000000'),
+		_classroom_id: classroomId,
+		_owner_id: ownerId,
+		name: 'README',
+		color: null,
+		type: 'post',
+		description: "Untuk semua mahasiswa kelas E, silahkan gunakan folder-folder ini untuk saling berbagi berkas dan link-link penting. Simpan sesuai dengan folder yang telah disediakan. Jika ada pertanyaan, silahkan hubungi langsung WA Rizal saja (089660952861). Terima kasih.",
+		files: null,
+		shared_with: null,
+		last_modified: new Date(),
+		date_created: new Date(),
+	},
+])
+
+// Insert post inside PAW folder
+db.directories.insertMany([
+	{
+		_id: ObjectId(),
+		_parent_id: pawId,
+		_classroom_id: classroomId,
+		_owner_id: ownerId,
+		name: 'Buku Belajar JS',
+		color: null,
+		type: 'post',
+		description: "Buku ini sangat bagus untuk belajar JS. Silahkan download dan baca.",
+		files: [
+        {
+            "link": "http://localhost:5000/files/get/6367476ea7f925567688ca234cad4a2c774646239550ba36831f88fa.pdf",
+            "type": "pdf",
+            "size": 97546
+        }
+    ],
+		shared_with: null,
+		last_modified: new Date(),
+		date_created: new Date(),
+	},
+	{
+		_id: ObjectId(),
+		_parent_id: pawId,
+		_classroom_id: classroomId,
+		_owner_id: ownerId,
+		name: 'Contoh program JS sederhana',
+		color: null,
+		type: 'post',
+		description: "Contoh program JS sederhana yang bisa digunakan untuk belajar.",
+		files: [
+        {
+            "link": "http://localhost:5000/files/get/6367476ea7f925567688ca234cad4a2c774646239550ba36831f88fa.pdf",
+            "type": "zip",
+            "size": 121011
+        }
+    ],
+		shared_with: null,
+		last_modified: new Date(),
+		date_created: new Date(),
+	},
+	{
+		_id: ObjectId(),
+		_parent_id: pawId,
+		_classroom_id: classroomId,
+		_owner_id: ownerId,
+		name: 'Project React (Jura Chicken)',
+		color: null,
+		type: 'post',
+		description: "Project React yang dibuat oleh Romi Jatmiko. Silahkan download dan coba.",
+		files: [
+        {
+            "link": "http://localhost:5000/files/get/6367476ea7f925567688ca234cad4a2c774646239550ba36831f88fa.pdf",
+            "type": "zip",
+            "size": 302011
+        }
+    ],
+		shared_with: null,
+		last_modified: new Date(),
+		date_created: new Date(),
+	},
+	{
+		_id: ObjectId(),
+		_parent_id: pawId,
+		_classroom_id: classroomId,
+		_owner_id: ownerId,
+		name: 'Video Tutorial MongoDB',
+		color: null,
+		type: 'post',
+		description: "Video tutorial MongoDB yang bisa digunakan untuk belajar.",
+		files: [
+        {
+            "link": "http://localhost:5000/files/get/6367476ea7f925567688ca234cad4a2c774646239550ba36831f88fa.pdf",
+            "type": "mp4",
+            "size": 1772011
+        }
+    ],
+		shared_with: null,
+		last_modified: new Date(),
+		date_created: new Date(),
+	},
+])
+
+// Insert folders and posts with group share type
+const ownerRirinId = ObjectId('6388180928a995c890cde100')
+const kelompok1Id = ObjectId()
+db.directories.insertMany([
+	{
+		_id: kelompok1Id,
+		_parent_id: ObjectId('000000000000000000000000'),
+		_classroom_id: ObjectId('000000000000000000000000'),
+		_owner_id: ownerRirinId,
+		name: 'Kelompok 1 PAW',
+		color: 'teal',
+		type: 'folder',
+		description: null,
+		files: null,
+		shared_with: [
+			{
+				_user_id: ownerId,
+				access: 'rw',
+			},
+		],
+		last_modified: new Date(),
+		date_created: new Date(),
+	},
+	{
+		_id: ObjectId(),
+		_parent_id: kelompok1Id,
+		_classroom_id: ObjectId('000000000000000000000000'),
+		_owner_id: ownerRirinId,
+		name: 'README',
+		color: null,
+		type: 'post',
+		description: "Untuk kelompok 1, kita akan membuat aplikasi OutClass untuk tugas PAW dan PAM nanti. Silahkan kumpulkan semua referensi di folder ini, terima kasih.",
+		files: null,
+		shared_with: [
+			{
+				_user_id: ownerId,
+				access: 'rw',
+			},
+		],
+		last_modified: new Date(),
+		date_created: new Date(),
+	},
+])
+
+// Insert folders and posts with private share type
+const utsPamId = ObjectId()
+db.directories.insertMany([
+
+	{
+		_id: utsPamId,
+		_parent_id: ObjectId('000000000000000000000000'),
+		_classroom_id: ObjectId('000000000000000000000000'),
+		_owner_id: ownerId,
+		name: 'UTS PAM',
+		color: 'teal',
+		type: 'folder',
+		description: null,
+		files: null,
+		shared_with: null,
+		last_modified: new Date(),
+		date_created: new Date(),
+	},
+	{
+		_id: ObjectId(),
+		_parent_id: utsPamId,
+		_classroom_id: ObjectId('000000000000000000000000'),
+		_owner_id: ownerId,
+		name: 'README',
+		color: null,
+		type: 'post',
+		description: "Folder ini buat pengumpulan UTS beserta referensi PDF nya",
+		files: null,
+		shared_with: null,
+		last_modified: new Date(),
+		date_created: new Date(),
+	},
+])

@@ -6,7 +6,7 @@ import (
 	"os"
 	"outclass-api/app/commons"
 	"outclass-api/app/configs"
-	_auth "outclass-api/app/controllers/auth"
+	"outclass-api/app/controllers/responses"
 	"outclass-api/app/dtos"
 	"outclass-api/app/utils"
 	"strconv"
@@ -77,9 +77,6 @@ func RenewTokens(c *fiber.Ctx) error {
 			})
 		}
 
-		hoursCount, _ := strconv.Atoi(os.Getenv("JWT_REFRESH_KEY_EXPIRE_HOURS_COUNT"))
-		expiration := time.Hour * time.Duration(hoursCount)
-
 		redis, err := configs.GetRedisConnection()
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
@@ -87,6 +84,24 @@ func RenewTokens(c *fiber.Ctx) error {
 				Message: err.Error(),
 			})
 		}
+
+		// renewToken, err := redis.Get(context.Background(), userId).Result()
+		// if err != nil {
+		// 	return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+		// 		Success: false,
+		// 		Message: err.Error(),
+		// 	})
+		// } else {
+		// 	if renewToken != renew.RefreshToken {
+		// 		return c.Status(fiber.StatusForbidden).JSON(commons.Response{
+		// 			Success: false,
+		// 			Message: "token already used",
+		// 		})
+		// 	}
+		// }
+
+		hoursCount, _ := strconv.Atoi(os.Getenv("JWT_REFRESH_KEY_EXPIRE_HOURS_COUNT"))
+		expiration := time.Hour * time.Duration(hoursCount)
 
 		err = redis.Set(context.Background(), userId, tokens.Refresh, expiration).Err()
 		if err != nil {
@@ -98,9 +113,11 @@ func RenewTokens(c *fiber.Ctx) error {
 
 		return c.JSON(commons.Response{
 			Success: false,
-			Data: _auth.TokenResponse{
-				AccessToken:  tokens.Access,
-				RefreshToken: tokens.Refresh,
+			Data: responses.TokenResponse{
+				AccessToken:           tokens.Access,
+				TokenExpiresIn:        tokens.TokenExpiresIn,
+				RefreshToken:          tokens.Refresh,
+				RefreshTokenExpiresIn: tokens.RefreshTokenExpiresIn,
 			},
 		})
 	} else {

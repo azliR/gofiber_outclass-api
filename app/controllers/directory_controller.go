@@ -6,7 +6,7 @@ import (
 	"outclass-api/app/configs"
 	"outclass-api/app/constants"
 	"outclass-api/app/controllers/core"
-	_directory "outclass-api/app/controllers/directory"
+	"outclass-api/app/controllers/responses"
 	"outclass-api/app/dtos"
 	"outclass-api/app/models"
 	"outclass-api/app/repositories"
@@ -96,9 +96,9 @@ func CreatePost(c *fiber.Ctx) error {
 	classroomId, _ := primitive.ObjectIDFromHex(postDto.ClassroomId)
 	directory := models.Directory{
 		Id:           primitive.NewObjectID(),
-		ParentId:     parentId,
+		ParentId:     &parentId,
 		OwnerId:      ownerId,
-		ClassroomId:  classroomId,
+		ClassroomId:  &classroomId,
 		Name:         postDto.Name,
 		Type:         constants.PostDirectoryName,
 		Description:  postDto.Description,
@@ -123,7 +123,7 @@ func CreatePost(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusCreated).JSON(commons.Response{
 		Success: true,
-		Data:    directory,
+		Data:    responses.ToPostResponse(directory),
 	})
 }
 
@@ -209,9 +209,9 @@ func CreateFolder(c *fiber.Ctx) error {
 	}
 	directory := models.Directory{
 		Id:           primitive.NewObjectID(),
-		ParentId:     parentId,
+		ParentId:     &parentId,
 		OwnerId:      ownerId,
-		ClassroomId:  classroomId,
+		ClassroomId:  &classroomId,
 		Name:         folderDto.Name,
 		Type:         constants.FolderDirectoryName,
 		Color:        &color,
@@ -236,7 +236,7 @@ func CreateFolder(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusCreated).JSON(commons.Response{
 		Success: true,
-		Data:    directory,
+		Data:    responses.ToFolderResponse(directory),
 	})
 }
 
@@ -273,14 +273,22 @@ func GetDirectoryById(c *fiber.Ctx) error {
 		})
 	}
 
+	var directoryResponse interface{}
+	if directory.Type == constants.PostDirectoryName {
+		directoryResponse = responses.ToPostResponse(*directory)
+	} else {
+		directoryResponse = responses.ToFolderResponse(*directory)
+	}
+
 	return c.Status(fiber.StatusOK).JSON(commons.Response{
 		Success: true,
-		Data:    directory,
+		Data:    directoryResponse,
 	})
+
 }
 
 func GetDirectoriesByParentId(c *fiber.Ctx) error {
-	_, err := core.VerifyAndSyncToken(c)
+	claims, err := core.VerifyAndSyncToken(c)
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(commons.Response{
 			Success: false,
@@ -311,8 +319,26 @@ func GetDirectoriesByParentId(c *fiber.Ctx) error {
 		})
 	}
 
+	if directoryParam.ShareType == constants.ClassShareTypeName {
+		if _, err := db.GetClassroomMemberByUserIdAndClassroomId(claims.UserId, directoryParam.ClassroomId); err != nil {
+			if errors.Is(err, mongo.ErrNoDocuments) {
+				return c.Status(fiber.StatusNotFound).JSON(commons.Response{
+					Success: false,
+					Message: "you are not a member of this classroom",
+				})
+			}
+			return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+				Success: false,
+				Message: err.Error(),
+			})
+		}
+	}
+
 	directories, err := db.GetDirectoriesByParentId(
+		claims.UserId,
+		directoryParam.ClassroomId,
 		directoryParam.Type,
+		directoryParam.ShareType,
 		directoryParam.ParentId,
 		directoryParam.Page,
 		directoryParam.PageLimit,
@@ -324,9 +350,20 @@ func GetDirectoriesByParentId(c *fiber.Ctx) error {
 		})
 	}
 
+	responseDirectories := make([]interface{}, 0)
+	for _, directory := range *directories {
+		var directoryResponse interface{}
+		if directory.Type == constants.PostDirectoryName {
+			directoryResponse = responses.ToPostResponse(directory)
+		} else {
+			directoryResponse = responses.ToFolderResponse(directory)
+		}
+		responseDirectories = append(responseDirectories, directoryResponse)
+	}
+
 	return c.Status(fiber.StatusOK).JSON(commons.Response{
 		Success: true,
-		Data:    directories,
+		Data:    responseDirectories,
 	})
 }
 
@@ -387,7 +424,7 @@ func UpdatePostById(c *fiber.Ctx) error {
 	now := time.Now()
 	parentId, _ := primitive.ObjectIDFromHex(postDto.ParentId)
 
-	foundedDirectory.ParentId = parentId
+	foundedDirectory.ParentId = &parentId
 
 	if postDto.Name == foundedDirectory.Name &&
 		postDto.Description == foundedDirectory.Description &&
@@ -407,9 +444,10 @@ func UpdatePostById(c *fiber.Ctx) error {
 			Message: err.Error(),
 		})
 	}
+
 	return c.Status(fiber.StatusCreated).JSON(commons.Response{
 		Success: true,
-		Data:    foundedDirectory,
+		Data:    responses.ToPostResponse(*foundedDirectory),
 	})
 }
 
@@ -470,7 +508,7 @@ func UpdateFolderById(c *fiber.Ctx) error {
 	now := time.Now()
 	parentId, _ := primitive.ObjectIDFromHex(folderDto.ParentId)
 
-	foundedDirectory.ParentId = parentId
+	foundedDirectory.ParentId = &parentId
 	if folderDto.Name == foundedDirectory.Name &&
 		folderDto.Color == foundedDirectory.Color &&
 		folderDto.Description == foundedDirectory.Description &&
@@ -493,9 +531,10 @@ func UpdateFolderById(c *fiber.Ctx) error {
 			Message: err.Error(),
 		})
 	}
+
 	return c.Status(fiber.StatusCreated).JSON(commons.Response{
 		Success: true,
-		Data:    foundedDirectory,
+		Data:    responses.ToFolderResponse(*foundedDirectory),
 	})
 }
 
@@ -561,7 +600,7 @@ func UploadFile(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusCreated).JSON(commons.Response{
 		Success: false,
-		Data:    _directory.ToFileUploadResponse(*fileModel),
+		Data:    responses.ToFileUploadResponse(*fileModel),
 	})
 }
 

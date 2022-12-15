@@ -43,30 +43,18 @@ func (r *ClassroomRepositories) GetClassroomById(classroomId string) (*models.Cl
 	return classroom, nil
 }
 
-// func (r *ClassroomRepositories) GetClassroomsByStudentId(studentId string, page uint, pageLimit uint) (*[]models.Classroom, error) {
-// 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-// 	defer cancel()
+func (r *ClassroomRepositories) GetClassroomByClassCode(classCode string) (*models.Classroom, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
-// 	objId, _ := primitive.ObjectIDFromHex(studentId)
+	classroom := &models.Classroom{}
 
-// 	findOption := options.Find()
-// 	findOption.SetSort(bson.D{
-// 		{Key: "type", Value: 1},
-// 		{Key: "last_modified", Value: -1},
-// 	})
-// 	findOption.SetLimit(int64(pageLimit))
-// 	findOption.SetSkip(int64((page - 1) * pageLimit))
-
-// 	cursor, err := helpers.ClassroomCollection(r.Client).Find(ctx, bson.M{"_stud_id": objId}, findOption)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	directories := &[]models.Classroom{}
-// 	cursor.All(ctx, directories)
-
-// 	return directories, nil
-// }
+	err := helpers.ClassroomCollection(r.Client).FindOne(ctx, bson.M{"class_code": classCode}).Decode(classroom)
+	if err != nil {
+		return nil, err
+	}
+	return classroom, nil
+}
 
 func (r *ClassroomRepositories) UpdateClassroom(classroom models.Classroom) error {
 	wc := writeconcern.New(writeconcern.WMajority())

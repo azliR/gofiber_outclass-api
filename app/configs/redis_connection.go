@@ -30,14 +30,13 @@ func RedisConnection() (*redis.Client, error) {
 		return nil, err
 	}
 
-	redisConnURL := fmt.Sprintf(
-		"%s:%s",
-		os.Getenv("REDIS_HOST"),
-		os.Getenv("REDIS_PORT"),
-	)
+	redisHost := os.Getenv("REDIS_HOST")
+	redisPort := os.Getenv("REDIS_PORT")
+	redisConnURL := redisHost + ":" + redisPort
 
 	options := &redis.Options{
 		Addr:     redisConnURL,
+		Username: os.Getenv("REDIS_USERNAME"),
 		Password: os.Getenv("REDIS_PASSWORD"),
 		DB:       dbNumber,
 	}

@@ -5,6 +5,11 @@ type CreateClassroomDto struct {
 	Description *string `json:"description"`
 }
 
+type JoinClassroomDto struct {
+	ClassCode string `json:"class_code" validate:"required,len=16"`
+	StudentId string `json:"student_id" validate:"required"`
+}
+
 type UpdateClassroomDto struct {
 	Name        string  `json:"name" `
 	Description *string `json:"description"`
