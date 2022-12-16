@@ -3,6 +3,7 @@ package dtos
 type CreateClassroomDto struct {
 	Name        string  `json:"name" validate:"required"`
 	Description *string `json:"description"`
+	StudentId   string  `json:"student_id" validate:"required"`
 }
 
 type JoinClassroomDto struct {

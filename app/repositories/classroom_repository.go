@@ -17,11 +17,29 @@ type ClassroomRepositories struct {
 	*mongo.Client
 }
 
-func (r *ClassroomRepositories) CreateClassroom(classroom models.Classroom) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
+func (r *ClassroomRepositories) CreateClassroom(classroom models.Classroom, classroomMember models.ClassroomMember) error {
+	wc := writeconcern.New(writeconcern.WMajority())
+	txnOptions := options.Transaction().SetWriteConcern(wc)
 
-	_, err := helpers.ClassroomCollection(r.Client).InsertOne(ctx, classroom)
+	session, err := r.Client.StartSession()
+	if err != nil {
+		return err
+	}
+	defer session.EndSession(context.TODO())
+
+	_, err = session.WithTransaction(context.TODO(), func(sessCtx mongo.SessionContext) (interface{}, error) {
+		_, err := helpers.ClassroomCollection(r.Client).InsertOne(sessCtx, classroom)
+		if err != nil {
+			return nil, err
+		}
+
+		_, err = helpers.ClassroomMemberCollection(r.Client).InsertOne(sessCtx, classroomMember)
+		if err != nil {
+			return nil, err
+		}
+		return nil, nil
+	}, txnOptions)
+
 	if err != nil {
 		return err
 	}

@@ -18,7 +18,7 @@ import (
 )
 
 func CreateClassroom(c *fiber.Ctx) error {
-	_, err := core.VerifyAndSyncToken(c)
+	claims, err := core.VerifyAndSyncToken(c)
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(commons.Response{
 			Success: false,
@@ -41,6 +41,7 @@ func CreateClassroom(c *fiber.Ctx) error {
 			Message: utils.ValidatorErrors(err),
 		})
 	}
+
 	classroom := models.Classroom{
 		Id:          primitive.NewObjectID(),
 		Name:        classroomDto.Name,
@@ -63,7 +64,54 @@ func CreateClassroom(c *fiber.Ctx) error {
 		})
 	}
 
-	if err := db.CreateClassroom(classroom); err != nil {
+	userId, err := primitive.ObjectIDFromHex(claims.UserId)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+			Success: false,
+			Message: err.Error(),
+		})
+	}
+
+	foundedUser, err := db.GetUserById(claims.UserId)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return c.Status(fiber.StatusNotFound).JSON(commons.Response{
+				Success: false,
+				Message: "the user not found",
+			})
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+			Success: false,
+			Message: err.Error(),
+		})
+	}
+
+	role, err := dtos.ToModelRole(constants.OwnerClassroomRoleName)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+			Success: false,
+			Message: err.Error(),
+		})
+	}
+
+	classroomMember := models.ClassroomMember{
+		Id:            primitive.NewObjectID(),
+		UserId:        userId,
+		ClassroomId:   classroom.Id,
+		StudentId:     classroomDto.StudentId,
+		ClassroomName: classroom.Name,
+		Name:          foundedUser.Name,
+		Role:          role,
+	}
+
+	if err := validator.Struct(classroomMember); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(commons.Response{
+			Success: false,
+			Message: utils.ValidatorErrors(err),
+		})
+	}
+
+	if err := db.CreateClassroom(classroom, classroomMember); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
 			Success: false,
 			Message: err.Error(),
@@ -231,11 +279,18 @@ func JoinClassroomByClassCode(c *fiber.Ctx) error {
 		Name:          foundedUser.Name,
 		Role:          role,
 	}
+	if err := validator.Struct(classroomMember); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(commons.Response{
+			Success: false,
+			Message: utils.ValidatorErrors(err),
+		})
+	}
+
 	if err = db.CreateClassroomMember(classroomMember); err != nil {
 		if mongo.IsDuplicateKeyError(err) {
-			return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+			return c.Status(fiber.StatusBadRequest).JSON(commons.Response{
 				Success: false,
-				Message: "either you are already a student of this class or your student id is already taken in this class",
+				Message: "either you are already a student of this class or your student id is already taken by other student in this class",
 			})
 		}
 		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{

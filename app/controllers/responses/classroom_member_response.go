@@ -12,15 +12,43 @@ type ClassroomMemberResponse struct {
 	Role          uint8  `json:"role"`
 }
 
+type ClassroomMemberProfileResponse struct {
+	Id                   string  `json:"id"`
+	UserId               string  `json:"user_id"`
+	ClassroomId          string  `json:"classroom_id"`
+	StudentId            string  `json:"student_id"`
+	Name                 string  `json:"name"`
+	Role                 uint8   `json:"role"`
+	ClassroomName        string  `json:"classroom_name"`
+	ClassCode            string  `json:"class_code"`
+	ClassroomDescription *string `json:"description"`
+	ClassMembersCount    int64   `json:"class_members_count"`
+}
+
 func ToClassroomMemberResponse(classroomMember models.ClassroomMember) ClassroomMemberResponse {
 	return ClassroomMemberResponse{
 		Id:            classroomMember.Id.Hex(),
 		UserId:        classroomMember.UserId.Hex(),
 		ClassroomId:   classroomMember.ClassroomId.Hex(),
 		StudentId:     classroomMember.StudentId,
-		ClassroomName: classroomMember.ClassroomName,
 		Name:          classroomMember.Name,
 		Role:          classroomMember.Role,
+		ClassroomName: classroomMember.ClassroomName,
+	}
+}
+
+func ToClassroomMemberProfileResponse(classroom models.Classroom, classroomMember models.ClassroomMember, classMembersCount int64) ClassroomMemberProfileResponse {
+	return ClassroomMemberProfileResponse{
+		Id:                   classroomMember.Id.Hex(),
+		UserId:               classroomMember.UserId.Hex(),
+		ClassroomId:          classroomMember.ClassroomId.Hex(),
+		StudentId:            classroomMember.StudentId,
+		Name:                 classroomMember.Name,
+		Role:                 classroomMember.Role,
+		ClassroomName:        classroomMember.ClassroomName,
+		ClassCode:            classroom.ClassCode,
+		ClassroomDescription: classroom.Description,
+		ClassMembersCount:    classMembersCount,
 	}
 }
 

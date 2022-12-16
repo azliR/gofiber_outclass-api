@@ -27,6 +27,20 @@ func (r *ClassroomMemberRepositories) CreateClassroomMember(classroomMember mode
 	return nil
 }
 
+func (r *ClassroomMemberRepositories) CountClassroomMembersByClassroomId(classroomId string) (int64, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	objId, _ := primitive.ObjectIDFromHex(classroomId)
+
+	count, err := helpers.ClassroomMemberCollection(r.Client).CountDocuments(ctx, bson.M{"_classroom_id": objId})
+	if err != nil {
+		return -1, err
+	}
+
+	return count, nil
+}
+
 func (r *ClassroomMemberRepositories) GetClassroomMemberByUserIdAndClassroomId(userId string, classroomId string) (*models.ClassroomMember, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()

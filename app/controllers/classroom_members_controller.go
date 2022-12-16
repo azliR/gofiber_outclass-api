@@ -127,14 +127,14 @@ import (
 // }
 
 func GetClassroomMemberByUserIdAndClassroomId(c *fiber.Ctx) error {
-	_, err := core.VerifyAndSyncToken(c)
+	claims, err := core.VerifyAndSyncToken(c)
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(commons.Response{
 			Success: false,
 			Message: err.Error(),
 		})
 	}
-	userId := c.Params("userId")
+
 	classroomId := c.Params("classroomId")
 
 	db, err := configs.GetMongoConnection()
@@ -145,7 +145,35 @@ func GetClassroomMemberByUserIdAndClassroomId(c *fiber.Ctx) error {
 		})
 	}
 
-	classroomMember, err := db.GetClassroomMemberByUserIdAndClassroomId(userId, classroomId)
+	classroom, err := db.GetClassroomById(classroomId)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return c.Status(fiber.StatusNotFound).JSON(commons.Response{
+				Success: false,
+				Message: "the classroom is not found",
+			})
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+			Success: false,
+			Message: err.Error(),
+		})
+	}
+
+	classMembersCount, err := db.CountClassroomMembersByClassroomId(classroomId)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return c.Status(fiber.StatusNotFound).JSON(commons.Response{
+				Success: false,
+				Message: "the classroom is not found",
+			})
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+			Success: false,
+			Message: err.Error(),
+		})
+	}
+
+	classroomMember, err := db.GetClassroomMemberByUserIdAndClassroomId(claims.UserId, classroomId)
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			return c.Status(fiber.StatusNotFound).JSON(commons.Response{
@@ -161,7 +189,7 @@ func GetClassroomMemberByUserIdAndClassroomId(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(commons.Response{
 		Success: true,
-		Data:    responses.ToClassroomMemberResponse(*classroomMember),
+		Data:    responses.ToClassroomMemberProfileResponse(*classroom, *classroomMember, classMembersCount),
 	})
 }
 
