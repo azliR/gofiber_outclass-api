@@ -27,7 +27,7 @@ func PrivateRoutes(a *fiber.App) {
 	route.Get("/classrooms/:classroomId/members", middleware.JWTProtected(), controllers.GetClassroomMembersByClassroomId)
 	route.Get("/classrooms/:classroomId/members/profile", middleware.JWTProtected(), controllers.GetClassroomMemberByUserIdAndClassroomId)
 
-	route.Post("/files", middleware.JWTProtected(), controllers.UploadFile)
+	// route.Post("/files", middleware.JWTProtected(), controllers.UploadFile)
 	route.Get("/files/:fileId", middleware.JWTProtected(), controllers.GetFile)
 	route.Delete("/files/:fileId", middleware.JWTProtected(), controllers.DeleteFile)
 

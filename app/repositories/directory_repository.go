@@ -26,7 +26,34 @@ type DirectoryRepositories struct {
 
 const StoredFilePath = "./uploads/"
 
-func (r *DirectoryRepositories) CreateDirectory(directory models.Directory) error {
+func (r *DirectoryRepositories) CreatePost(c *fiber.Ctx, directory models.Directory, fileHeaders []*multipart.FileHeader) (error, []models.File) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	fileModels := []models.File{}
+	for _, fileHeader := range fileHeaders {
+		fileModel, err := UploadFile(c, fileHeader)
+		if err != nil {
+			for _, fileModel := range fileModels {
+				os.Remove(StoredFilePath + fileModel.Name)
+			}
+			return err, nil
+		}
+		fileModels = append(fileModels, *fileModel)
+	}
+
+	directory.Files = append(directory.Files, fileModels...)
+	_, err := helpers.DirectoryCollection(r.Client).InsertOne(ctx, directory)
+	if err != nil {
+		for _, fileModel := range fileModels {
+			os.Remove(StoredFilePath + fileModel.Name)
+		}
+		return err, nil
+	}
+	return nil, fileModels
+}
+
+func (r *DirectoryRepositories) CreateFolder(directory models.Directory) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -165,9 +192,9 @@ func (r *DirectoryRepositories) DeleteDirectory(directoryId string) error {
 	return nil
 }
 
-func UploadFile(c *fiber.Ctx, file *multipart.FileHeader, userId string) (*models.File, error) {
+func UploadFile(c *fiber.Ctx, file *multipart.FileHeader) (*models.File, error) {
 	fileExt := filepath.Ext(file.Filename)
-	fileName := userId + strings.ReplaceAll(uuid.NewString(), "-", "") + fileExt
+	fileName := strings.ReplaceAll(uuid.NewString(), "-", "") + fileExt
 	filePath := StoredFilePath + fileName
 	if _, err := os.Stat(StoredFilePath); errors.Is(err, os.ErrNotExist) {
 		if err := os.Mkdir(StoredFilePath, os.ModePerm); err != nil {

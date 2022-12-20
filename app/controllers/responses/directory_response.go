@@ -66,7 +66,7 @@ func ToPostResponse(directory models.Directory) PostResponse {
 		ClassroomId:  utils.ToObjectIdString(*directory.ClassroomId),
 		Name:         directory.Name,
 		Description:  directory.Description,
-		Files:        toFileResponses(directory.Files),
+		Files:        ToFileResponses(directory.Files),
 		SharedWith:   toUserWithAccessResponses(directory.SharedWith),
 		LastModified: directory.LastModified.Time(),
 		DateCreated:  directory.DateCreated.Time(),
@@ -88,7 +88,7 @@ func ToFolderResponse(directory models.Directory) FolderResponse {
 	}
 }
 
-func toFileResponses(files []models.File) []FileResponse {
+func ToFileResponses(files []models.File) []FileResponse {
 	if len(files) == 0 {
 		return nil
 	}

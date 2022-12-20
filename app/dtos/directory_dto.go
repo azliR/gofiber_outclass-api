@@ -5,11 +5,10 @@ import (
 )
 
 type CreatePostDto struct {
-	ParentId    string    `json:"parent_id" validate:"omitempty,len=24"`
-	ClassroomId string    `json:"classroom_id" validate:"omitempty,len=24"`
-	Name        string    `json:"name" validate:"required"`
-	Description *string   `json:"description"`
-	Files       []FileDto `json:"files" validate:"required,dive,unique=Link"`
+	ParentId    string  `form:"parent_id" validate:"omitempty,len=24"`
+	ClassroomId string  `form:"classroom_id" validate:"omitempty,len=24"`
+	Name        string  `form:"name" validate:"required"`
+	Description *string `form:"description"`
 }
 
 type FileDto struct {

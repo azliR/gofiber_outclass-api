@@ -27,21 +27,30 @@ func CreatePost(c *fiber.Ctx) error {
 		})
 	}
 
-	postDto := &dtos.CreatePostDto{}
+	createPostDto := &dtos.CreatePostDto{}
 
-	if err := c.BodyParser(postDto); err != nil {
+	if err := c.BodyParser(createPostDto); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(commons.Response{
 			Success: false,
 			Message: err.Error(),
 		})
 	}
 
-	if err := validator.Struct(postDto); err != nil {
+	if err := validator.Struct(createPostDto); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(commons.Response{
 			Success: false,
 			Message: utils.ValidatorErrors(err),
 		})
 	}
+
+	forms, err := c.MultipartForm()
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(commons.Response{
+			Success: false,
+			Message: err.Error(),
+		})
+	}
+	fileHeaders := forms.File["files"]
 
 	db, err := configs.GetMongoConnection()
 	if err != nil {
@@ -51,8 +60,8 @@ func CreatePost(c *fiber.Ctx) error {
 		})
 	}
 
-	if postDto.ParentId != "" {
-		foundedDirectory, err := db.GetDirectoryById(postDto.ParentId)
+	if createPostDto.ParentId != "" {
+		foundedDirectory, err := db.GetDirectoryById(createPostDto.ParentId)
 		if err != nil {
 			if errors.Is(err, mongo.ErrNoDocuments) {
 				return c.Status(fiber.StatusNotFound).JSON(commons.Response{
@@ -74,8 +83,8 @@ func CreatePost(c *fiber.Ctx) error {
 		}
 	}
 
-	if postDto.ClassroomId != "" {
-		_, err = db.GetClassroomById(postDto.ClassroomId)
+	if createPostDto.ClassroomId != "" {
+		_, err = db.GetClassroomById(createPostDto.ClassroomId)
 		if err != nil {
 			if errors.Is(err, mongo.ErrNoDocuments) {
 				return c.Status(fiber.StatusBadRequest).JSON(commons.Response{
@@ -91,18 +100,18 @@ func CreatePost(c *fiber.Ctx) error {
 	}
 
 	now := time.Now()
-	parentId, _ := primitive.ObjectIDFromHex(postDto.ParentId)
+	parentId, _ := primitive.ObjectIDFromHex(createPostDto.ParentId)
 	ownerId, _ := primitive.ObjectIDFromHex(claims.UserId)
-	classroomId, _ := primitive.ObjectIDFromHex(postDto.ClassroomId)
+	classroomId, _ := primitive.ObjectIDFromHex(createPostDto.ClassroomId)
 	directory := models.Directory{
 		Id:           primitive.NewObjectID(),
 		ParentId:     &parentId,
 		OwnerId:      ownerId,
 		ClassroomId:  &classroomId,
-		Name:         postDto.Name,
+		Name:         createPostDto.Name,
 		Type:         constants.PostDirectoryName,
-		Description:  postDto.Description,
-		Files:        dtos.ToModelFiles(postDto.Files),
+		Description:  createPostDto.Description,
+		Files:        []models.File{},
 		LastModified: primitive.NewDateTimeFromTime(now),
 		DateCreated:  primitive.NewDateTimeFromTime(now),
 	}
@@ -114,13 +123,15 @@ func CreatePost(c *fiber.Ctx) error {
 		})
 	}
 
-	if err := db.CreateDirectory(directory); err != nil {
+	err, files := db.CreatePost(c, directory, fileHeaders)
+	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
 			Success: false,
 			Message: err.Error(),
 		})
 	}
 
+	directory.Files = append(directory.Files, files...)
 	return c.Status(fiber.StatusCreated).JSON(commons.Response{
 		Success: true,
 		Data:    responses.ToPostResponse(directory),
@@ -227,7 +238,7 @@ func CreateFolder(c *fiber.Ctx) error {
 		})
 	}
 
-	if err := db.CreateDirectory(directory); err != nil {
+	if err := db.CreateFolder(directory); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
 			Success: false,
 			Message: err.Error(),
@@ -573,36 +584,42 @@ func DeleteDirectory(c *fiber.Ctx) error {
 	return c.SendStatus(fiber.StatusNoContent)
 }
 
-func UploadFile(c *fiber.Ctx) error {
-	claims, err := core.VerifyAndSyncToken(c)
-	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(commons.Response{
-			Success: false,
-			Message: err.Error(),
-		})
-	}
+// func UploadFile(c *fiber.Ctx) error {
+// 	claims, err := core.VerifyAndSyncToken(c)
+// 	if err != nil {
+// 		return c.Status(fiber.StatusUnauthorized).JSON(commons.Response{
+// 			Success: false,
+// 			Message: err.Error(),
+// 		})
+// 	}
 
-	file, err := c.FormFile("file")
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
-			Success: false,
-			Message: err.Error(),
-		})
-	}
+// 	form, err := c.MultipartForm()
+// 	if err != nil {
+// 		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+// 			Success: false,
+// 			Message: err.Error(),
+// 		})
+// 	}
 
-	fileModel, err := repositories.UploadFile(c, file, claims.UserId)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
-			Success: false,
-			Message: err.Error(),
-		})
-	}
+// 	fileModels := []models.File{}
+// 	for _, fileHeaders := range form.File {
+// 		for _, fileHeader := range fileHeaders {
+// 			fileModel, err := repositories.UploadFile(c, fileHeader, claims.UserId)
+// 			if err != nil {
+// 				return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+// 					Success: false,
+// 					Message: err.Error(),
+// 				})
+// 			}
+// 			fileModels = append(fileModels, *fileModel)
+// 		}
+// 	}
 
-	return c.Status(fiber.StatusCreated).JSON(commons.Response{
-		Success: false,
-		Data:    responses.ToFileUploadResponse(*fileModel),
-	})
-}
+// 	return c.Status(fiber.StatusCreated).JSON(commons.Response{
+// 		Success: false,
+// 		Data:    responses.ToFileResponses(fileModels),
+// 	})
+// }
 
 func GetFile(c *fiber.Ctx) error {
 	_, err := core.VerifyAndSyncToken(c)
