@@ -22,3 +22,7 @@ func ClassroomMemberCollection(client *mongo.Client) *mongo.Collection {
 func DirectoryCollection(client *mongo.Client) *mongo.Collection {
 	return getCollection(client, "directories")
 }
+
+func EventCollection(client *mongo.Client) *mongo.Collection {
+	return getCollection(client, "events")
+}

@@ -40,4 +40,7 @@ func PrivateRoutes(a *fiber.App) {
 	route.Get("/directories", middleware.JWTProtected(), controllers.GetDirectoriesByParentId)
 	route.Get("/directories/:directoryId", middleware.JWTProtected(), controllers.GetDirectoryById)
 	route.Delete("/directories/:directoryId", middleware.JWTProtected(), controllers.DeleteDirectory)
+
+	route.Post("/events", middleware.JWTProtected(), controllers.CreateEvent)
+	route.Get("/events/class/:classroomId", middleware.JWTProtected(), controllers.GetEventsByClassroomId)
 }

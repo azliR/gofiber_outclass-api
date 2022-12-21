@@ -18,6 +18,7 @@ type Repositories struct {
 	*repositories.ClassroomRepositories
 	*repositories.ClassroomMemberRepositories
 	*repositories.DirectoryRepositories
+	*repositories.EventRepositories
 }
 
 var MongoDb, _ = MongoConnection()
@@ -60,5 +61,6 @@ func MongoConnection() (*Repositories, error) {
 		ClassroomRepositories:       &repositories.ClassroomRepositories{Client: client},
 		ClassroomMemberRepositories: &repositories.ClassroomMemberRepositories{Client: client},
 		DirectoryRepositories:       &repositories.DirectoryRepositories{Client: client},
+		EventRepositories:           &repositories.EventRepositories{Client: client},
 	}, nil
 }

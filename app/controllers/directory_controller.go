@@ -216,7 +216,7 @@ func CreateFolder(c *fiber.Ctx) error {
 	classroomId, _ := primitive.ObjectIDFromHex(folderDto.ClassroomId)
 	color := folderDto.Color
 	if color == "" {
-		color = "teal"
+		color = "grape"
 	}
 	directory := models.Directory{
 		Id:           primitive.NewObjectID(),
