@@ -29,7 +29,7 @@ func PrivateRoutes(a *fiber.App) {
 
 	// route.Post("/files", middleware.JWTProtected(), controllers.UploadFile)
 	route.Get("/files/:fileId", middleware.JWTProtected(), controllers.GetFile)
-	route.Delete("/files/:fileId", middleware.JWTProtected(), controllers.DeleteFile)
+	// route.Delete("/files/:fileId", middleware.JWTProtected(), controllers.DeleteFile)
 
 	route.Post("/directories/posts", middleware.JWTProtected(), controllers.CreatePost)
 	route.Put("/directories/posts/:postId", middleware.JWTProtected(), controllers.UpdatePostById)
@@ -43,4 +43,7 @@ func PrivateRoutes(a *fiber.App) {
 
 	route.Post("/events", middleware.JWTProtected(), controllers.CreateEvent)
 	route.Get("/events/class/:classroomId", middleware.JWTProtected(), controllers.GetEventsByClassroomId)
+
+	route.Post("/tasks", middleware.JWTProtected(), controllers.CreateTask)
+	route.Get("/tasks/class/:classroomId", middleware.JWTProtected(), controllers.GetTasksByClassroomId)
 }

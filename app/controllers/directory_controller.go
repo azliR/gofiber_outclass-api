@@ -9,7 +9,6 @@ import (
 	"outclass-api/app/controllers/responses"
 	"outclass-api/app/dtos"
 	"outclass-api/app/models"
-	"outclass-api/app/repositories"
 	"outclass-api/app/utils"
 	"time"
 
@@ -123,7 +122,7 @@ func CreatePost(c *fiber.Ctx) error {
 		})
 	}
 
-	err, files := db.CreatePost(c, directory, fileHeaders)
+	files, err := db.CreatePost(c, directory, fileHeaders)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
 			Success: false,
@@ -632,22 +631,5 @@ func GetFile(c *fiber.Ctx) error {
 
 	fileId := c.Params("fileId")
 
-	return c.SendFile("./uploads/"+fileId, true)
-}
-
-func DeleteFile(c *fiber.Ctx) error {
-	_, err := core.VerifyAndSyncToken(c)
-	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(commons.Response{
-			Success: false,
-			Message: err.Error(),
-		})
-	}
-
-	fileId := c.Params("fileId")
-
-	if err := repositories.DeleteFile(c, fileId); err != nil {
-		return err
-	}
-	return c.SendStatus(fiber.StatusNoContent)
+	return c.SendFile("./uploads/files/"+fileId, true)
 }

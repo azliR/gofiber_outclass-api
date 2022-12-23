@@ -2,18 +2,13 @@ package repositories
 
 import (
 	"context"
-	"errors"
 	"mime/multipart"
-	"os"
 	"outclass-api/app/constants"
 	"outclass-api/app/models"
 	"outclass-api/app/repositories/helpers"
-	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -24,20 +19,20 @@ type DirectoryRepositories struct {
 	*mongo.Client
 }
 
-const StoredFilePath = "./uploads/"
+const storedFilePath = "./uploads/files/"
 
-func (r *DirectoryRepositories) CreatePost(c *fiber.Ctx, directory models.Directory, fileHeaders []*multipart.FileHeader) (error, []models.File) {
+func (r *DirectoryRepositories) CreatePost(c *fiber.Ctx, directory models.Directory, fileHeaders []*multipart.FileHeader) ([]models.File, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	fileModels := []models.File{}
 	for _, fileHeader := range fileHeaders {
-		fileModel, err := UploadFile(c, fileHeader)
+		fileModel, err := helpers.UploadFile(c, fileHeader, storedFilePath)
 		if err != nil {
 			for _, fileModel := range fileModels {
-				os.Remove(StoredFilePath + fileModel.Name)
+				helpers.DeleteFile(fileModel.Id, storedFilePath)
 			}
-			return err, nil
+			return nil, err
 		}
 		fileModels = append(fileModels, *fileModel)
 	}
@@ -46,11 +41,11 @@ func (r *DirectoryRepositories) CreatePost(c *fiber.Ctx, directory models.Direct
 	_, err := helpers.DirectoryCollection(r.Client).InsertOne(ctx, directory)
 	if err != nil {
 		for _, fileModel := range fileModels {
-			os.Remove(StoredFilePath + fileModel.Name)
+			helpers.DeleteFile(fileModel.Id, storedFilePath)
 		}
-		return err, nil
+		return nil, err
 	}
-	return nil, fileModels
+	return fileModels, nil
 }
 
 func (r *DirectoryRepositories) CreateFolder(directory models.Directory) error {
@@ -187,43 +182,6 @@ func (r *DirectoryRepositories) DeleteDirectory(directoryId string) error {
 	objId, _ := primitive.ObjectIDFromHex(directoryId)
 	_, err := helpers.DirectoryCollection(r.Client).DeleteOne(ctx, bson.M{"_id": objId})
 	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func UploadFile(c *fiber.Ctx, file *multipart.FileHeader) (*models.File, error) {
-	fileExt := filepath.Ext(file.Filename)
-	fileName := strings.ReplaceAll(uuid.NewString(), "-", "") + fileExt
-	filePath := StoredFilePath + fileName
-	if _, err := os.Stat(StoredFilePath); errors.Is(err, os.ErrNotExist) {
-		if err := os.Mkdir(StoredFilePath, os.ModePerm); err != nil {
-			return nil, err
-		}
-	}
-
-	if err := c.SaveFile(file, filePath); err != nil {
-		return nil, err
-	}
-	serverScheme := os.Getenv("SERVER_SCHEME")
-	serverHost := os.Getenv("SERVER_HOST")
-	serverPort := os.Getenv("SERVER_PORT")
-	server := serverScheme + "://" + serverHost + ":" + serverPort
-	link := server + "/api/v1/files/" + fileName
-	fileType := strings.Replace(fileExt, ".", "", 1)
-
-	return &models.File{
-		Name: file.Filename,
-		Link: link,
-		Type: &fileType,
-		Size: &file.Size,
-	}, nil
-}
-
-func DeleteFile(c *fiber.Ctx, fileId string) error {
-	filePath := StoredFilePath + fileId
-
-	if err := os.Remove(filePath); err != nil {
 		return err
 	}
 	return nil

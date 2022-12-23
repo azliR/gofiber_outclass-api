@@ -7,10 +7,10 @@ import (
 )
 
 type EventResponse struct {
-	Id           string     `json:"_id"`
-	CreatorId    string     `json:"_owner_id"`
-	ClassroomId  *string    `json:"_classroom_id"`
-	Name         string     `json:"name"`
+	Id           string     `json:"id"`
+	CreatorId    string     `json:"owner_id"`
+	ClassroomId  *string    `json:"classroom_id"`
+	Title        string     `json:"title"`
 	StartDate    time.Time  `json:"start_date"`
 	EndDate      *time.Time `json:"end_date"`
 	Repeat       string     `json:"repeat"`
@@ -30,7 +30,7 @@ func ToEventResponse(event models.Event) EventResponse {
 		Id:           event.Id.Hex(),
 		CreatorId:    event.CreatorId.Hex(),
 		ClassroomId:  utils.ToObjectIdString(*event.ClassroomId),
-		Name:         event.Name,
+		Title:        event.Title,
 		StartDate:    event.StartDate.Time(),
 		EndDate:      endDateTime,
 		Repeat:       event.Repeat,

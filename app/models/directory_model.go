@@ -20,6 +20,7 @@ type Directory struct {
 }
 
 type File struct {
+	Id   string  `bson:"id" validate:"required"`
 	Name string  `bson:"name" validate:"required"`
 	Link string  `bson:"link" validate:"required,url"`
 	Type *string `bson:"type"`

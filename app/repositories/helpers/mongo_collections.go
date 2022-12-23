@@ -26,3 +26,7 @@ func DirectoryCollection(client *mongo.Client) *mongo.Collection {
 func EventCollection(client *mongo.Client) *mongo.Collection {
 	return getCollection(client, "events")
 }
+
+func TaskCollection(client *mongo.Client) *mongo.Collection {
+	return getCollection(client, "tasks")
+}

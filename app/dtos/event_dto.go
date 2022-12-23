@@ -4,7 +4,7 @@ import "time"
 
 type CreateEventDto struct {
 	ClassroomId string     `json:"classroom_id" validate:"omitempty,len=24"`
-	Name        string     `json:"name" validate:"required"`
+	Title       string     `json:"title" validate:"required"`
 	StartDate   time.Time  `json:"start_date" validate:"required"`
 	EndDate     *time.Time `json:"end_date"`
 	Repeat      string     `json:"repeat" validate:"required,oneof=no daily weekly monthly yearly"`

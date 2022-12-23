@@ -11,13 +11,6 @@ type CreatePostDto struct {
 	Description *string `form:"description"`
 }
 
-type FileDto struct {
-	Name string  `json:"name" validate:"required"`
-	Link string  `json:"link" validate:"required,url"`
-	Type *string `json:"type"`
-	Size *int64  `json:"size" validate:"omitempty,number"`
-}
-
 type CreateFolderDto struct {
 	ParentId    string  `json:"parent_id" validate:"omitempty,len=24"`
 	ClassroomId string  `json:"classroom_id" validate:"omitempty,len=24"`
@@ -31,6 +24,13 @@ type UpdatePostDto struct {
 	Name        string    `json:"name"`
 	Description *string   `json:"description"`
 	Files       []FileDto `json:"files" validate:"dive,unique=Link"`
+}
+
+type FileDto struct {
+	Name string  `json:"name" validate:"required"`
+	Link string  `json:"link" validate:"required,url"`
+	Type *string `json:"type"`
+	Size *int64  `json:"size" validate:"omitempty,number"`
 }
 
 type UpdateFolderDto struct {

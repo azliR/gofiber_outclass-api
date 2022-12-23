@@ -19,19 +19,21 @@ type Repositories struct {
 	*repositories.ClassroomMemberRepositories
 	*repositories.DirectoryRepositories
 	*repositories.EventRepositories
+	*repositories.TaskRepositories
 }
 
 var MongoDb, _ = MongoConnection()
 
 func GetMongoConnection() (*Repositories, error) {
 	db := MongoDb
-	if db == nil {
-		mongoDb, err := MongoConnection()
-		if err != nil {
-			return nil, err
-		}
-		db = mongoDb
+	if db != nil {
+		return db, nil
 	}
+	mongoDb, err := MongoConnection()
+	if err != nil {
+		return nil, err
+	}
+	db = mongoDb
 	return db, nil
 }
 
@@ -62,5 +64,6 @@ func MongoConnection() (*Repositories, error) {
 		ClassroomMemberRepositories: &repositories.ClassroomMemberRepositories{Client: client},
 		DirectoryRepositories:       &repositories.DirectoryRepositories{Client: client},
 		EventRepositories:           &repositories.EventRepositories{Client: client},
+		TaskRepositories:            &repositories.TaskRepositories{Client: client},
 	}, nil
 }

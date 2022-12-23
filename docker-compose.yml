@@ -6,13 +6,17 @@ services:
     ports:
       - '6379:6379'
     volumes:
-      - /home/azlir/docker/redis/data:/data
+      - ./docker-config/redis/data:/data
   mongo:
     hostname: mongo
     image: 'mongo:latest'
     ports:
       - '27017:27017'
     volumes:
-      - /home/azlir/docker/mongo/data/db:/data/db
-      - /home/azlir/docker/mongo/data/configdb:/data/configdb
-    command: '--bind_ip_all --replSet rs0'
+      - ./docker-config/mongo/data/db:/data/db
+      - ./docker-config/mongo/data/configdb:/data/configdb
+      - ./docker-config/mongo/mongodb-keyfile:/etc/mongodb-keyfile
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=root
+    command: 'mongod --replSet rs0 --keyFile /etc/mongodb-keyfile'
