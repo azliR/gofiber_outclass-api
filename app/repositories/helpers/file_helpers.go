@@ -17,7 +17,7 @@ func UploadFile(c *fiber.Ctx, file *multipart.FileHeader, storedFilePath string)
 	fileName := strings.ReplaceAll(uuid.NewString(), "-", "") + fileExt
 	filePath := storedFilePath + fileName
 	if _, err := os.Stat(storedFilePath); errors.Is(err, os.ErrNotExist) {
-		if err := os.Mkdir(storedFilePath, os.ModePerm); err != nil {
+		if err := os.MkdirAll(storedFilePath, os.ModePerm); err != nil {
 			return nil, err
 		}
 	}

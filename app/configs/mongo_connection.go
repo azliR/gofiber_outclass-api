@@ -2,6 +2,7 @@ package configs
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"os"
 	"outclass-api/app/repositories"
@@ -39,7 +40,7 @@ func GetMongoConnection() (*Repositories, error) {
 
 func MongoConnection() (*Repositories, error) {
 	godotenv.Load()
-	client, err := mongo.NewClient(options.Client().ApplyURI(os.Getenv("MONGO_URI")))
+	client, err := mongo.NewClient(options.Client().ApplyURI(os.Getenv("MONGO_URI")).SetTLSConfig(&tls.Config{InsecureSkipVerify: true}))
 	if err != nil {
 		return nil, err
 	}

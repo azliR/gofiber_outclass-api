@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"outclass-api/app/commons"
 	"outclass-api/app/configs"
@@ -29,11 +28,6 @@ func RenewTokens(c *fiber.Ctx) error {
 	}
 
 	expiresAccessToken := claims.Expires
-
-	fmt.Print("Time Now: ")
-	fmt.Println(time.Unix(now, 0))
-	fmt.Print("Time Exp: ")
-	fmt.Println(time.Unix(expiresAccessToken, 0))
 
 	if now < expiresAccessToken {
 		return c.Status(fiber.StatusForbidden).JSON(commons.Response{

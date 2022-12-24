@@ -1,0 +1,19 @@
+# Ignore Go binaries
+*.a
+*.o
+
+# Ignore Go test files
+*_test.go
+
+# Ignore Go vendor directories
+vendor/
+
+# Ignore other files and directories that are not needed in the image
+*.md
+LICENSE
+README.md
+.git
+.gitignore
+
+docker-config/
+uploads/

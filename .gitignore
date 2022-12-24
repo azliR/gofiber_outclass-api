@@ -12,3 +12,6 @@ tmp/
 .env
 uploads/
 docker-config/
+cert.pem
+privkey.pem
+docker-run.sh
