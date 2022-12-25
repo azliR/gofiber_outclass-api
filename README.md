@@ -22,10 +22,8 @@ cd gofiber_outclass-api
 #### Menjalankan MongoDB Replica Set Menggunakan Docker
 3. Untuk menjalankan MongoDB Replica Set dengan authentication, kita perlu membuat keyfile terlebih dahulu. Jalankan perintah berikut untuk membuat keyfile
 ```bash
-# Buat folder docker-config
-mkdir docker-config
-# Buat folder mongo
-mkdir ./docker-config/mongo
+# Buat folder docker-config dan mongo
+mkdir -p ./docker-config/mongo
 # Membuat keyfile dengan panjang 756 karakter
 # Ubah 756 dengan angka yang lebih besar jika ingin membuat keyfile yang lebih aman
 openssl rand -base64 756 > ./docker-config/mongo/mongodb-keyfile
