@@ -33,7 +33,7 @@ sudo chmod 600 ./docker-config/mongo/mongodb-keyfile
 ```
 4. Jalankan docker-compose. Perhatikan di file `docker-compose.yml`, kita meggunakan username `root` dan password `root` untuk MongoDB. Jika ingin mengganti, silahkan ubah di file `docker-compose.yml`
 ```bash
-docker-compose up
+docker compose up
 ```
 5. Masuk ke Docker container untuk setup Replica Set MongoDB
 ```bash

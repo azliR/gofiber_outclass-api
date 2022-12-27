@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 	"outclass-api/app/configs"
 	"outclass-api/app/middleware"
 	"outclass-api/app/routes"
@@ -20,5 +21,10 @@ func main() {
 	routes.PrivateRoutes(app)
 	routes.PublicRoutes(app)
 
-	log.Fatal(app.ListenTLS(":20109", "./cert.pem", "./privkey.pem"))
+	serverScheme := os.Getenv("SERVER_SCHEME")
+	if serverScheme == "http" {
+		log.Fatal(app.Listen(":20109"))
+	} else if serverScheme == "https" {
+		log.Fatal(app.ListenTLS(":20109", "./cert.pem", "./privkey.pem"))
+	}
 }

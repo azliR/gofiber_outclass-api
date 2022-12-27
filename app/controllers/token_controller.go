@@ -106,7 +106,7 @@ func RenewTokens(c *fiber.Ctx) error {
 		}
 
 		return c.JSON(commons.Response{
-			Success: false,
+			Success: true,
 			Data: responses.TokenResponse{
 				AccessToken:           tokens.Access,
 				TokenExpiresIn:        tokens.TokenExpiresIn,

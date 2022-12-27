@@ -40,7 +40,15 @@ func GetMongoConnection() (*Repositories, error) {
 
 func MongoConnection() (*Repositories, error) {
 	godotenv.Load()
-	client, err := mongo.NewClient(options.Client().ApplyURI(os.Getenv("MONGO_URI")).SetTLSConfig(&tls.Config{InsecureSkipVerify: true}))
+	mongoOptions := options.Client()
+	mongoOptions.ApplyURI(os.Getenv("MONGO_URI"))
+
+	serverScheme := os.Getenv("SERVER_SCHEME")
+	if serverScheme == "https" {
+		mongoOptions.SetTLSConfig(&tls.Config{InsecureSkipVerify: true})
+	}
+
+	client, err := mongo.NewClient(mongoOptions)
 	if err != nil {
 		return nil, err
 	}
