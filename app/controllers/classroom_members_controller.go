@@ -145,6 +145,14 @@ func GetClassroomMemberByUserIdAndClassroomId(c *fiber.Ctx) error {
 		})
 	}
 
+	user, err := db.GetUserById(claims.UserId)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(commons.Response{
+			Success: false,
+			Message: err.Error(),
+		})
+	}
+
 	classroom, err := db.GetClassroomById(classroomId)
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
@@ -189,7 +197,7 @@ func GetClassroomMemberByUserIdAndClassroomId(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(commons.Response{
 		Success: true,
-		Data:    responses.ToClassroomMemberProfileResponse(*classroom, *classroomMember, classMembersCount),
+		Data:    responses.ToClassroomMemberProfileResponse(*user, *classroom, *classroomMember, classMembersCount),
 	})
 }
 

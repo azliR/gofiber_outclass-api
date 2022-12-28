@@ -1,6 +1,7 @@
 FROM golang:1.19 AS builder
 
 LABEL maintainer="Rizal Hadiyansah <rizalhadiyansah@gmail.com> (https://github.com/azliR)"
+LABEL version=0.1.0
 
 # Move to working directory (/build).
 WORKDIR /build

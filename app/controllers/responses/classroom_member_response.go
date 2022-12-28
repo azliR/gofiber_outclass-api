@@ -18,6 +18,7 @@ type ClassroomMemberProfileResponse struct {
 	ClassroomId          string  `json:"classroom_id"`
 	StudentId            string  `json:"student_id"`
 	Name                 string  `json:"name"`
+	Email                string  `json:"email"`
 	Role                 uint8   `json:"role"`
 	ClassroomName        string  `json:"classroom_name"`
 	ClassCode            string  `json:"class_code"`
@@ -37,13 +38,14 @@ func ToClassroomMemberResponse(classroomMember models.ClassroomMember) Classroom
 	}
 }
 
-func ToClassroomMemberProfileResponse(classroom models.Classroom, classroomMember models.ClassroomMember, classMembersCount int64) ClassroomMemberProfileResponse {
+func ToClassroomMemberProfileResponse(user models.User, classroom models.Classroom, classroomMember models.ClassroomMember, classMembersCount int64) ClassroomMemberProfileResponse {
 	return ClassroomMemberProfileResponse{
 		Id:                   classroomMember.Id.Hex(),
 		UserId:               classroomMember.UserId.Hex(),
 		ClassroomId:          classroomMember.ClassroomId.Hex(),
 		StudentId:            classroomMember.StudentId,
 		Name:                 classroomMember.Name,
+		Email:                user.Email,
 		Role:                 classroomMember.Role,
 		ClassroomName:        classroomMember.ClassroomName,
 		ClassCode:            classroom.ClassCode,
