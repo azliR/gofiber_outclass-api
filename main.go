@@ -22,9 +22,10 @@ func main() {
 	routes.PublicRoutes(app)
 
 	serverScheme := os.Getenv("SERVER_SCHEME")
+	serverPort := os.Getenv("SERVER_PORT")
 	if serverScheme == "http" {
-		log.Fatal(app.Listen(":20109"))
+		log.Fatal(app.Listen(":" + serverPort))
 	} else if serverScheme == "https" {
-		log.Fatal(app.ListenTLS(":20109", "./cert.pem", "./privkey.pem"))
+		log.Fatal(app.ListenTLS(":" + serverPort, "./cert.pem", "./privkey.pem"))
 	}
 }
