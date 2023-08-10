@@ -25,6 +25,7 @@ jobs:
           envkey_MONGO_URI: ${{ secrets.MONGO_URI }}
           envkey_REDIS_HOST: ${{ secrets.REDIS_HOST }}
           envkey_REDIS_PORT: ${{ secrets.REDIS_PORT }}
+          envkey_REDIS_USERNAME: ${{ secrets.REDIS_USERNAME }}
           envkey_REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
           envkey_REDIS_DB_NUMBER: ${{ secrets.REDIS_DB_NUMBER }}
 
