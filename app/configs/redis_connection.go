@@ -18,6 +18,7 @@ func GetRedisConnection() (*redis.Client, error) {
 		if err != nil {
 			return nil, err
 		}
+		fmt.Println("Connected to Redis")
 		db = RedisDb
 	}
 	return db, nil
@@ -40,6 +41,5 @@ func RedisConnection() (*redis.Client, error) {
 		Password: os.Getenv("REDIS_PASSWORD"),
 		DB:       dbNumber,
 	}
-	fmt.Println("Connected to Redis")
 	return redis.NewClient(options), nil
 }
