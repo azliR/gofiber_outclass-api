@@ -43,8 +43,9 @@ func MongoConnection() (*Repositories, error) {
 	mongoOptions := options.Client()
 	mongoOptions.ApplyURI(os.Getenv("MONGO_URI"))
 
+	env := os.Getenv("ENV")
 	serverScheme := os.Getenv("SERVER_SCHEME")
-	if serverScheme == "https" {
+	if serverScheme == "https" || env == "production" {
 		mongoOptions.SetTLSConfig(&tls.Config{InsecureSkipVerify: true})
 	}
 
