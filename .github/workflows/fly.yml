@@ -13,7 +13,7 @@ jobs:
         env:
           DOTENV_FILE: ${{ secrets.DOTENV_FILE }}
         run: |
-          echo ${{ secrets.DOTENV_FILE }} | base64 --decode > .env
+          echo $DOTENV_FILE | base64 --decode > .env
       - uses: superfly/flyctl-actions/setup-flyctl@master
       - run: flyctl deploy --remote-only
         env:
