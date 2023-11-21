@@ -25,10 +25,7 @@ func UploadFile(c *fiber.Ctx, file *multipart.FileHeader, storedFilePath string)
 	if err := c.SaveFile(file, filePath); err != nil {
 		return nil, err
 	}
-	serverScheme := os.Getenv("SERVER_SCHEME")
-	serverHost := os.Getenv("SERVER_HOST")
-	serverPort := os.Getenv("SERVER_PORT")
-	server := serverScheme + "://" + serverHost + ":" + serverPort
+	publicServerUrl := os.Getenv("PUBLIC_SERVER_URL")
 	link := server + "/api/v1/files/" + fileName
 	fileType := strings.Replace(fileExt, ".", "", 1)
 
