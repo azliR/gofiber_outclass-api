@@ -26,7 +26,7 @@ func UploadFile(c *fiber.Ctx, file *multipart.FileHeader, storedFilePath string)
 		return nil, err
 	}
 	publicServerUrl := os.Getenv("PUBLIC_SERVER_URL")
-	link := server + "/api/v1/files/" + fileName
+	link := publicServerUrl + "/api/v1/files/" + fileName
 	fileType := strings.Replace(fileExt, ".", "", 1)
 
 	return &models.File{
